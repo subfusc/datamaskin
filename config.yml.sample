@@ -1,3 +1,6 @@
-username: foo@jabber.org
+username: foo@example.com
 password: reallysecurepassword
 nick: dasbot
+rooms:
+ - foo@conference.example.com
+ - bar@conference.example.com

@@ -5,10 +5,11 @@
   (defn session-start [self event]
     (.send_presence self)
     (.get_roster self)
-    (.joinMUC (get self.plugin "xep_0045")
-              "dasbot@conference.chat.uio.no"
-              self.nick
-              :wait True))
+    (for [room self.rooms]
+      (self.join-room room)))
+
+  (defn join-room [self room]
+    (.joinMUC (get self.plugin "xep_0045") room self.nick :wait True))
 
   (defn message [self msg]
     (if (in (get msg "type") ["chat" "normal"])
@@ -20,8 +21,9 @@
       (!= (. msg ["from"] resource) self.nick)
       (.send (.reply msg "A message from Hy!"))))
 
-  (defn --init-- [self jid pass nick]
+  (defn --init-- [self jid pass nick rooms]
     (setv self.nick nick)
+    (setv self.rooms rooms)
     (ClientXMPP.--init-- self jid pass)
     (self.add_event_handler "session_start" self.session-start)
     (self.add_event_handler "groupchat_message" self.group-message)
