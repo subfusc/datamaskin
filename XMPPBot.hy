@@ -21,10 +21,14 @@
       (!= (. msg ["from"] resource) self.nick)
       (.send (.reply msg "A message from Hy!"))))
 
-  (defn --init-- [self jid pass nick rooms]
-    (setv self.nick nick)
-    (setv self.rooms rooms)
-    (ClientXMPP.--init-- self jid pass)
+  (defn --init-- [self config]
+    (setv self.nick (get config "nick"))
+    (setv self.rooms (get config "rooms"))
+    (ClientXMPP.--init--
+      self
+      (get config "username")
+      (get config "password"))
+
     (self.add_event_handler "session_start" self.session-start)
     (self.add_event_handler "groupchat_message" self.group-message)
     (self.add_event_handler "message" self.message)))
