@@ -12,7 +12,7 @@ class Plugin(object):
         self.shadap = re.compile(SHADAP_RE, re.I)
         self.dicere = re.compile(DICE_CMD_RE, re.U)
         self.universe = re.compile(UNIVERSE_RE, re.I)
-        # self.x = kwargs['config'].get('test','x')
+        self.x = kwargs['config'].get('test','x')
         # self.verbose = kwargs['verbose']
         # self.debug = kwargs['debug']
         # self.jobs_exist = 'new_job' in kwargs and 'del_job' in kwargs

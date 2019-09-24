@@ -1,6 +1,9 @@
 username: foo@example.com
 password: reallysecurepassword
 nick: dasbot
+command_prefix: .
+plugins:
+ - Useless
 rooms:
  - foo@conference.example.com
  - bar@conference.example.com
