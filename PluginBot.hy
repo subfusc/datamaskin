@@ -25,6 +25,8 @@
                     (eval (read-str f"(plugins.{plugin}.Plugin #** kwargs)")
                           {"plugins" self.--plugins "kwargs" kwargs}))))
       (except [e [Exception]]
+        (print "==================================")
+        (print f"Crashed trying to load '{plugin}'")
         (print (repr e)))))
 
   (defn --send-message [self messages context]
