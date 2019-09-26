@@ -74,7 +74,8 @@
       (.add self.--job-list job)
       (if (and self.--timer (.is_alive self.--timer))
           (.cancel self.--timer))
-      (if (.locked self.--job-wait-lock) (.release self.--job-wait-lock))))
+      (if (.locked self.--job-wait-lock) (.release self.--job-wait-lock)))
+    job.id)
 
   (defn stop [self]
     (with-lock self.--external-synchronization
@@ -114,7 +115,7 @@
 
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
     (setv (get kwargs "new_job")
-          (fn [time function args] (.add-job (self.--tab (CronJob time function args context)))))
+          (fn [time function args] (.add-job self.--tab (CronJob time function args context))))
     (.cmd (super CronBot self) command args :context context kwargs)))
 
 (defmain [&rest _]
