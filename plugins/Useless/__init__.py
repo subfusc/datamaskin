@@ -15,7 +15,7 @@ class Plugin(object):
         self.x = kwargs['config'].get('test','x')
         # self.verbose = kwargs['verbose']
         # self.debug = kwargs['debug']
-        # self.jobs_exist = 'new_job' in kwargs and 'del_job' in kwargs
+        self.jobs_exist = 'new_job' in kwargs and 'del_job' in kwargs
         self.ball_response = ['It is certain',
                               'It is decidedly so',
                               'Without a doubt',
@@ -38,10 +38,10 @@ class Plugin(object):
                               'Very doubtful']
 
     def listen(self, msg, channel, **kwargs):
-        if msg.find(NICK) != -1 and self.shadap.search(msg):
+        if msg.find(kwargs['context'].self_nick) != -1 and self.shadap.search(msg):
             return [(0, channel, kwargs['from_nick'], 'Fuck you! I\'m only doing what I\'m being told to do.')]
 
-        if msg.find(NICK) != -1 and self.universe.search(msg):
+        if msg.find(kwargs['context'].self_nick) != -1 and self.universe.search(msg):
             return [(0, channel, kwargs['from_nick'], 'The universe is a spheroid region, 705 meters in diameter.')]
 
     def cmd(self, command, args, channel, **kwargs):

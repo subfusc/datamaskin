@@ -17,7 +17,12 @@
         (do (setv context (Message (.join "" (. msg ["from"] bare))
                                    (. msg ["type"])
                                    (. msg ["body"])
-                                   (. msg ["from"] resource)))
+                                   (. msg ["from"] resource)
+                                   self.nick))
+            (.outbound-message
+              self
+              "I'm currently under construction. Please wait while we set you over to Eliza ...."
+              context)
             (if (and (!= context.from-nick self.nick) (= (get context.message 0) self.cmdp))
                 (do
                   (setv split-cmd (.split context.message " "))
@@ -31,7 +36,8 @@
     (setv context (Message (.join "" (. msg ["from"] bare))
                            (. msg ["type"])
                            (. msg ["body"])
-                           (. msg ["from"] resource)))
+                           (. msg ["from"] resource)
+                           self.nick))
     (and (!= context.from-nick self.nick)
          (if (= (get context.message 0) self.cmdp)
              (do

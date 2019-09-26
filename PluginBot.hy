@@ -42,6 +42,15 @@
         (for [plugin (.values self.--functions)]
           (.--send-message
             self
-            (.cmd plugin command args context.stream :from_nick context.from-nick)
+            (.cmd plugin command args context.stream :from_nick context.from-nick :context context)
             context)))
-    (.cmd (super PluginBot self) command args :context context #** kwargs)))
+    (.cmd (super PluginBot self) command args :context context #** kwargs))
+
+  (defn listen [self message &optional [context '()] &kwargs kwargs]
+    (if context
+        (for [plugin (.values self.--functions)]
+          (.--send-message
+            self
+            (.listen plugin message context.stream :from_nick context.from-nick :context context)
+            context)))
+    (.listen (super PluginBot self) message :context context #** kwargs)))
