@@ -40,10 +40,12 @@
 
   (defn add [self job]
     (with-lock self.--lock
-      (for [[index stored-job] (enumerate self.--tab)]
-        (if (> job.time stored-job.time)
-            (.insert self.--tab index job))
-        (else (.append self.--tab job)))))
+      (do
+        (setv insert-at None)
+        (for [[index stored-job] (enumerate self.--tab)]
+          (if (> job.time stored-job.time) (do (setv insert-at index) (break)))
+          (else (.append self.--tab job)))
+        (if (!= insert-at None) (.insert self.--tab insert-at job)))))
 
   (defn del [self uuid]
     (with-lock self.--lock
@@ -73,7 +75,6 @@
     (len self.--job-list))
 
   (defn add-job [self job]
-    (print f"Adding job {(repr job)}" :file sys.stderr :flush True)
     (with-lock self.--external-synchronization
       (do
         (.add self.--job-list job)
@@ -133,18 +134,14 @@
       (fn [uuid] (.del-job self.--tab uuid))))
 
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
-    (cond [(= command "alive")
-           (.outbound-message
-             f"CronTab alive? {(.is_alive self.--tab)}"
-             context
-             :to context.from-nick)]
-          [True
-            (.add-jobs-to-kwarg self context kwargs)
-            (.cmd (super CronBot self) command args :context context #** kwargs)]))
+    (.add-jobs-to-kwarg self context kwargs)
+    (.cmd (super CronBot self) command args :context context #** kwargs))
 
   (defn listen [self message &optional [context '()] &kwargs kwargs]
     (.add-jobs-to-kwarg self context kwargs)
     (.listen (super CronBot self) message :context context #** kwargs)))
 
 (defmain [&rest _]
-  (.start (CronBot {"nick" "Test" "command_prefix" "!" "plugins" ["Useless"]})))
+  (.start (CronBot {"nick" "Test"
+                    "command_prefix" "!"
+                    "plugins" ["Useless" "Reminder"]})))
