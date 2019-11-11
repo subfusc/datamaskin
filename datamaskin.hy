@@ -1,7 +1,7 @@
 (import logging)
 (import [shutil [copy]])
 (import [yaml [load FullLoader]])
-(import [PluginBot [PluginBot]])
+(import [CronBot [CronBot]])
 (import [os.path [isfile]])
 
 (defn read-config []
@@ -13,9 +13,9 @@
   (load (open "config.yml" "r") :Loader FullLoader))
 
 
-(defn main [&rest _]
+(defmain [&rest _]
   (setv config (read-config))
-  (setv bot (PluginBot config))
+  (setv bot (CronBot config))
   (.basicConfig logging :level logging.DEBUG :format "%(levelname)-8s %(message)s")
   (.register_plugin bot "xep_0030")
   (.register_plugin bot "xep_0045")

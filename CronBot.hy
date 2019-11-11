@@ -6,13 +6,13 @@
 (import sys)
 (import [math [ceil]])
 
-(defmacro with-lock [lock &rest expr]
+(defmacro with-lock [lock expr]
   `(do
      (.acquire ~lock)
      (try ~expr
           (finally (.release ~lock)))))
 
-(defmacro with-lock-unchecked-release [lock &rest expr]
+(defmacro with-lock-unchecked-release [lock expr]
   `(do
      (.acquire ~lock)
      (try ~expr
@@ -25,7 +25,10 @@
       self.time time
       self.function function
       self.args args
-      self.context context)))
+      self.context context))
+
+  (defn --repr-- [self]
+    f"<job {(repr self.id)}: {self.time}>"))
 
 (defclass CronList []
   (defn --init-- [self]
@@ -70,60 +73,78 @@
     (len self.--job-list))
 
   (defn add-job [self job]
+    (print f"Adding job {(repr job)}" :file sys.stderr :flush True)
     (with-lock self.--external-synchronization
-      (.add self.--job-list job)
-      (if (and self.--timer (.is_alive self.--timer))
-          (.cancel self.--timer))
-      (if (.locked self.--job-wait-lock) (.release self.--job-wait-lock)))
+      (do
+        (.add self.--job-list job)
+        (if (and self.--timer (.is_alive self.--timer))
+            (.cancel self.--timer))
+        (if (.locked self.--job-wait-lock) (.release self.--job-wait-lock))))
     job.id)
+
+  (defn del-job [self uuid]
+    (.del self.--job-list uuid))
 
   (defn stop [self]
     (with-lock self.--external-synchronization
-      (setv self.--exit True)
-      (if (and self.--timer (.is_alive self.--timer)) (.cancel self.--timer))
-      (.release self.--job-wait-lock)))
-
+      (do
+        (setv self.--exit True)
+        (if (and self.--timer (.is_alive self.--timer)) (.cancel self.--timer))
+        (.release self.--job-wait-lock))))
 
   (defn run [self]
     (while (not self.--exit)
+      (print f"Checking for new job" :file sys.stderr :flush True)
       (if (> (len self.--job-list) 0)
           (do
             (with-lock self.--external-synchronization
-              (.acquire self.--job-wait-lock)
-              (setv self.--timer (Timer
-                                   (- (. (.peek self.--job-list) time) (.time time))
-                                   (fn [lock] (if (.locked lock) (.release lock)))
-                                   [self.--job-wait-lock]))
-              (.start self.--timer))
+              (do
+                (.acquire self.--job-wait-lock)
+                (setv self.--timer (Timer
+                                     (- (. (.peek self.--job-list) time) (.time time))
+                                     (fn [lock] (if (.locked lock) (.release lock)))
+                                     [self.--job-wait-lock]))
+                (.start self.--timer)))
             (with-lock-unchecked-release self.--job-wait-lock
-              (setv next-job (.peek self.--job-list))
-              (if (and next-job (< next-job.time (.time time)))
-                  (try
-                    (self.--messaging-function
-                      (next-job.function #* next-job.args)
-                      next-job.context)
-                    (except [e Exception]
-                      (print (.format "Error in the Crontab: {}" (repr e)) :file sys.stderr))
-                    (finally (.pop self.--job-list))))))
+              (do
+                (setv next-job (.pop self.--job-list))
+                (if (and next-job (< next-job.time (.time time)))
+                    (try
+                      (self.--messaging-function
+                        (next-job.function #* next-job.args)
+                        next-job.context)
+                      (except [e Exception]
+                        (print (.format "Error in the Crontab: {}" (repr e)) :file sys.stderr)))
+                    (.add self.--job-list next-job)))))
           (with-lock-unchecked-release self.--job-wait-lock
             (.acquire self.--job-wait-lock))))))
 
 (defclass CronBot [PluginBot]
   (defn --init-- [self config]
-    (.--init-- (super CronBot self) config)
-    (setv self.--tab (CronTab self.--send-message)))
+    (.--init-- (super) config)
+    (setv self.--tab (CronTab self.-send-message))
+    (.start self.--tab))
+
+  (defn add-jobs-to-kwarg [self context kwargs]
+    (setv
+      (get kwargs "new_job")
+      (fn [time function args] (.add-job self.--tab (CronJob time function args context)))
+      (get kwargs "del_job")
+      (fn [uuid] (.del-job self.--tab uuid))))
 
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
-    (setv (get kwargs "new_job")
-          (fn [time function args] (.add-job self.--tab (CronJob time function args context))))
-    (.cmd (super CronBot self) command args :context context kwargs)))
+    (cond [(= command "alive")
+           (.outbound-message
+             f"CronTab alive? {(.is_alive self.--tab)}"
+             context
+             :to context.from-nick)]
+          [True
+            (.add-jobs-to-kwarg self context kwargs)
+            (.cmd (super CronBot self) command args :context context #** kwargs)]))
+
+  (defn listen [self message &optional [context '()] &kwargs kwargs]
+    (.add-jobs-to-kwarg self context kwargs)
+    (.listen (super CronBot self) message :context context #** kwargs)))
 
 (defmain [&rest _]
-  (setv tab (CronTab (fn [&rest args] (print (get args 0)))))
-  (.start tab)
-  (time.sleep 2)
-
-  (.add-job tab (CronJob (+ (.time time) 10) (fn [number] number) [10] '()))
-  (.add-job tab (CronJob (+ (.time time) 5) (fn [number] number) [5] '()))
-  (while (> (len tab) 0) (time.sleep 2))
-  (.stop tab))
+  (.start (CronBot {"nick" "Test" "command_prefix" "!" "plugins" ["Useless"]})))

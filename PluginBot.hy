@@ -1,11 +1,10 @@
-(import [XMPPBot [XMPPBot]])
+(import [ProtocolBot [ProtocolBot]])
 (import [configparser [ConfigParser]])
 (import [os.path [isfile]])
-(import [Message [Message]])
 
-(defclass PluginBot [XMPPBot]
+(defclass PluginBot [ProtocolBot]
   (defn --init-- [self config]
-    (.--init-- (super PluginBot self) config)
+    (.--init-- (super) config)
     (setv self.--plugins None)
     (setv self.--functions {})
     (if (in "plugins" config)
@@ -20,16 +19,19 @@
       (if (isfile config-path)
           (do (setv config (ConfigParser))
               (.read config config-path)
-              (setv (get kwargs "config") config)
-              (setv (get self.--functions plugin)
-                    (eval (read-str f"(plugins.{plugin}.Plugin #** kwargs)")
-                          {"plugins" self.--plugins "kwargs" kwargs}))))
+              (setv (get kwargs "config") config)))
+      (setv (get self.--functions plugin)
+            (eval (read-str f"(plugins.{plugin}.Plugin #** kwargs)")
+                  {"plugins" self.--plugins "kwargs" kwargs}))
       (except [e [Exception]]
         (print "==================================")
         (print f"Crashed trying to load '{plugin}'")
         (print (repr e)))))
 
-  (defn --send-message [self messages context]
+  (defn --unload-plugin [self plugin]
+    (del (get self.--functions plugin)))
+
+  (defn -send-message [self messages context]
     (if messages
         (for [message messages]
           (cond [(= (len message 4))
@@ -37,20 +39,32 @@
                 [(= (len message 3))
                  (.outbound-message self (get message 2) context)]))))
 
+  (defmacro run-plugin-with-error-handling [code]
+    `(if context
+         (do
+           (setv unloads [])
+           (for [plugin (.keys self.--functions)]
+             (try
+               (self.-send-message ~code context)
+               (except [e Exception]
+                 (.append unloads plugin)
+                 (print (.format "Plugin {} raised: {}" plugin (str e))))))
+           (for [key unloads] (self.--unload-plugin key)))))
+
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
-    (if context
-        (for [plugin (.values self.--functions)]
-          (.--send-message
-            self
-            (.cmd plugin command args context.stream :from_nick context.from-nick :context context)
-            context)))
-    (.cmd (super PluginBot self) command args :context context #** kwargs))
+    (run-plugin-with-error-handling
+      (.cmd (get self.--functions plugin)
+            command args context.stream
+            :from_nick context.from-nick
+            :context context
+            #** kwargs))
+    (.cmd (super) command args :context context #** kwargs))
 
   (defn listen [self message &optional [context '()] &kwargs kwargs]
-    (if context
-        (for [plugin (.values self.--functions)]
-          (.--send-message
-            self
-            (.listen plugin message context.stream :from_nick context.from-nick :context context)
-            context)))
-    (.listen (super PluginBot self) message :context context #** kwargs)))
+    (run-plugin-with-error-handling
+      (.listen (get self.--functions plugin)
+               message context.stream
+               :from_nick context.from-nick
+               :context context
+               #** kwargs))
+    (.listen (super) message :context context #** kwargs)))
