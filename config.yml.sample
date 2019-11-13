@@ -1,9 +1,11 @@
-username: foo@example.com
-password: reallysecurepassword
 nick: dasbot
 command_prefix: .
+protocol: terminal
 plugins:
  - Useless
 rooms:
  - foo@conference.example.com
  - bar@conference.example.com
+XMPP:
+  jid: foo@example.com
+  password: reallysecurepassword

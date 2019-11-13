@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-(import [.Terminal [Terminal]])
+(import [.XMPP [XMPP]])
 
 (defclass ProtocolGlue []
   ;; Protocol functions necessary to make for each protocol
@@ -27,11 +27,16 @@
   ;; * join-room [self room]
   ;; ** If the protocol has a room concept, this function will be
   ;;    called to join a room based on a string identifier
+  ;; * leave-room [self room]
+  ;; ** If join-room is defined, so should leave room
 
   (defn --init-- [self config]
     (setv
       self.config config
-      self.protocol (Terminal self.cmd self.listen config)))
+      self.protocol ((cond [(= "xmpp" (get config "protocol")) XMPP]
+                           [(= "terminal" (get config "protocol")) Terminal]
+                           [else (raise "Unsupported protocol, please provide one")])
+                      self.cmd self.listen config)))
 
   ;; Placeholder functions to be overriden by the parent classes
   (defn cmd [self cmd args &kwargs kwargs])
