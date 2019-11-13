@@ -1,4 +1,4 @@
-(import [PluginBot [PluginBot]])
+(import [.PluginBot [PluginBot]])
 (import [uuid [UUID uuid4]])
 (import [threading [Thread Lock Timer]])
 (import time)

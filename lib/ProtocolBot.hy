@@ -1,8 +1,8 @@
 (import [sleekxmpp [ClientXMPP JID]])
 (import [sleekxmpp.exceptions [IqError IqTimeout]])
-(import protocols)
+(import [.protocols [ProtocolGlue]])
 
-(defclass ProtocolBot [protocols.ProtocolGlue]
+(defclass ProtocolBot [ProtocolGlue]
   (defn --init-- [self config]
     (.--init-- (super) config)))
 

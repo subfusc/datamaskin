@@ -1,5 +1,6 @@
 ;; -*- coding: utf-8 -*-
 (import [.XMPP [XMPP]])
+(import [.Terminal [Terminal]])
 
 (defclass ProtocolGlue []
   ;; Protocol functions necessary to make for each protocol

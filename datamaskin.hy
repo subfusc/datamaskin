@@ -1,7 +1,7 @@
 (import logging)
 (import [shutil [copy]])
 (import [yaml [load FullLoader]])
-(import [CronBot [CronBot]])
+(import lib) ;; This should be changed at some point
 (import [os.path [isfile]])
 
 (defn read-config []
@@ -15,6 +15,6 @@
 
 (defmain [&rest _]
   (setv config (read-config))
-  (setv bot (CronBot config))
+  (setv bot (lib.CronBot config))
   (.basicConfig logging :level logging.DEBUG :format "%(levelname)-8s %(message)s")
   (.start bot))

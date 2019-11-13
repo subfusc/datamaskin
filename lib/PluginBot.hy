@@ -1,4 +1,4 @@
-(import [ProtocolBot [ProtocolBot]])
+(import [.ProtocolBot [ProtocolBot]])
 (import [configparser [ConfigParser]])
 (import [os.path [isfile]])
 
