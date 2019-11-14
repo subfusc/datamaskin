@@ -39,7 +39,7 @@
     (cond [(= command "nag")
            (do
              (setv sa (self.-split-arg args))
-             (unless (in (second sa) self.jobs)
+             (unless (or (= None sa) (in (second sa) self.jobs))
                (setv
                  (get self.jobs (second sa)) ((get kwargs "new_job")
                                                (+ (time) (self.-time-obj-parse (first sa)))
