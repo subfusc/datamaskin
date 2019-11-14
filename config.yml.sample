@@ -1,11 +1,11 @@
 nick: dasbot
 command_prefix: .
-protocol: terminal
-plugins:
+protocol: terminal # has xmpp right now
+plugins: # plugins to load at start
  - Useless
-rooms:
+rooms: # List of rooms
  - foo@conference.example.com
  - bar@conference.example.com
-XMPP:
+XMPP: # Config for the xmpp protocol
   jid: foo@example.com
   password: reallysecurepassword
