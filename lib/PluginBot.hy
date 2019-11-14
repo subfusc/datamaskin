@@ -53,18 +53,20 @@
 
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
     (run-plugin-with-error-handling
-      (.cmd (get self.--functions plugin)
-            command args context.stream
-            :from_nick context.from-nick
-            :context context
-            #** kwargs))
+      (if (hasattr (get self.--functions plugin) "cmd")
+          (.cmd (get self.--functions plugin)
+                command args context.stream
+                :from_nick context.from-nick
+                :context context
+                #** kwargs)))
     (.cmd (super) command args :context context #** kwargs))
 
   (defn listen [self message &optional [context '()] &kwargs kwargs]
     (run-plugin-with-error-handling
-      (.listen (get self.--functions plugin)
-               message context.stream
-               :from_nick context.from-nick
-               :context context
-               #** kwargs))
+      (if (hasattr (get self.--functions plugin) "listen")
+          (.listen (get self.--functions plugin)
+                   message context.stream
+                   :from_nick context.from-nick
+                   :context context
+                   #** kwargs)))
     (.listen (super) message :context context #** kwargs)))
