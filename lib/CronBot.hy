@@ -4,6 +4,7 @@
 (import time)
 (import os)
 (import sys)
+(import traceback)
 (import [math [ceil]])
 
 (defmacro with-lock [lock expr]
@@ -49,9 +50,11 @@
 
   (defn del [self uuid]
     (with-lock self.--lock
-      (for [[index stored-job] (enumerate self.--tab)]
-        (if (= uuid stored-job.uuid)
-            (do (del (get self.--tab index)) (break))))))
+      (do
+        (setv i 0)
+        (for [[index stored-job] (enumerate self.--tab)]
+          (if (= uuid stored-job.id) (do (setv i index) (break))))
+        (del (get self.--tab i)))))
 
   (defn peek [self]
     (get self.--tab -1))
@@ -107,16 +110,18 @@
                                      [self.--job-wait-lock]))
                 (.start self.--timer)))
             (with-lock-unchecked-release self.--job-wait-lock
-              (do
-                (setv next-job (.pop self.--job-list))
-                (if (and next-job (< next-job.time (.time time)))
+              (if (> (len self.--job-list) 0)
+                  (do
+                    (setv next-job (.pop self.--job-list))
+                    (if (and next-job (< next-job.time (.time time)))
                     (try
                       (self.--messaging-function
                         (next-job.function #* next-job.args)
                         next-job.context)
                       (except [e Exception]
+                        (traceback.print-exc)
                         (print (.format "Error in the Crontab: {}" (repr e)) :file sys.stderr)))
-                    (.add self.--job-list next-job)))))
+                    (.add self.--job-list next-job))))))
           (with-lock-unchecked-release self.--job-wait-lock
             (.acquire self.--job-wait-lock))))))
 

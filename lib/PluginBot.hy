@@ -34,9 +34,9 @@
   (defn -send-message [self messages context]
     (if messages
         (for [message messages]
-          (cond [(= (len message 4))
+          (cond [(= (len message) 4)
                  (.outbound-message self (get message 3) context :to (get message 2))]
-                [(= (len message 3))
+                [(= (len message) 3)
                  (.outbound-message self (get message 2) context)]))))
 
   (defmacro run-plugin-with-error-handling [code]

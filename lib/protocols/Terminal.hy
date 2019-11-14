@@ -22,7 +22,7 @@
   (defn args-to-cmd [self line]
     (setv split-cmd (.split (cut line 1) " "))
     {"command" (get split-cmd 0)
-     "args" (cut split-cmd 1)
+     "args" (.join " " (cut split-cmd 1))
      "context" (TerminalContext line (get self.config "nick"))})
 
   (defn args-to-listen [self line]
