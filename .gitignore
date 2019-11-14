@@ -2,3 +2,4 @@
 config.yml
 runtime
 *__pycache__*
+data/*
