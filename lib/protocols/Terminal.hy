@@ -57,7 +57,6 @@
     (setv exit False)
     (while (not exit)
       (setv event (self.wait-for-event))
-      (print event)
       (cond [(and (in "command" event) (= "exit" (get event "command"))) (setv exit True)]
             [(in "command" event) (self.cmd #** event)]
             [(in "message" event) (self.listen #** event)]))))
