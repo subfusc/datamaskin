@@ -1,6 +1,7 @@
 (import [.ProtocolBot [ProtocolBot]])
 (import [configparser [ConfigParser]])
 (import [os.path [isfile]])
+(import sys)
 
 (defclass PluginBot [ProtocolBot]
   (defn --init-- [self config]
@@ -29,6 +30,12 @@
         (print (repr e)))))
 
   (defn --unload-plugin [self plugin]
+    (setv mods []
+          mprefix (+ "plugins." plugin))
+    (for [module sys.modules]
+      (if (.startswith module mprefix)
+          (.append mods module)))
+    (for [module mods] (del (get sys.modules module)))
     (del (get self.--functions plugin)))
 
   (defn -send-message [self messages context]
@@ -52,13 +59,18 @@
            (for [key unloads] (self.--unload-plugin key)))))
 
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
-    (run-plugin-with-error-handling
-      (if (hasattr (get self.--functions plugin) "cmd")
-          (.cmd (get self.--functions plugin)
-                command args context.stream
-                :from_nick context.from-nick
-                :context context
-                #** kwargs)))
+    (if (and (in "admin" kwargs) (get kwargs "admin"))
+        (try
+          (cond [(= command "load") (self.--load-plugin args)]
+                [(= command "unload") (self.--unload-plugin args)]
+                [True (run-plugin-with-error-handling
+                        (if (hasattr (get self.--functions plugin) "cmd")
+                            (.cmd (get self.--functions plugin)
+                                  command args context.stream
+                                  :from_nick context.from-nick
+                                  :context context
+                                  #** kwargs)))])
+          (except [Exception])))
     (.cmd (super) command args :context context #** kwargs))
 
   (defn listen [self message &optional [context '()] &kwargs kwargs]
