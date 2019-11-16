@@ -63,6 +63,9 @@
         (try
           (cond [(= command "load") (self.--load-plugin args)]
                 [(= command "unload") (self.--unload-plugin args)]
+                [(= command "reload") (do
+                                        (self.--unload-plugin args)
+                                        (self.--load-plugin args))]
                 [True (run-plugin-with-error-handling
                         (if (hasattr (get self.--functions plugin) "cmd")
                             (.cmd (get self.--functions plugin)
