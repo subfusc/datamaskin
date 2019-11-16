@@ -32,7 +32,8 @@
   (defn cmd [self &kwargs kwargs]
     (setv
       command (get kwargs "command")
-      args (get kwargs "args"))
+      args (get kwargs "args")
+      (get kwargs "admin") True)
     (del (get kwargs "command"))
     (del (get kwargs "args"))
     (self.-cmd command args #** kwargs))
