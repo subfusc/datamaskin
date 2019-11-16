@@ -61,7 +61,8 @@
 
   (defn pop [self]
     (with-lock self.--lock
-      (.pop self.--tab))))
+      (if (> (len self) 0)
+          (.pop self.--tab)))))
 
 (defclass CronTab [Thread]
   (defn --init-- [self messaging-function]
@@ -110,10 +111,9 @@
                                      [self.--job-wait-lock]))
                 (.start self.--timer)))
             (with-lock-unchecked-release self.--job-wait-lock
-              (if (> (len self.--job-list) 0)
-                  (do
-                    (setv next-job (.pop self.--job-list))
-                    (if (and next-job (< next-job.time (.time time)))
+              (do
+                (setv next-job (.pop self.--job-list))
+                (if (and next-job (< next-job.time (.time time)))
                     (try
                       (self.--messaging-function
                         (next-job.function #* next-job.args)
@@ -121,7 +121,7 @@
                       (except [e Exception]
                         (traceback.print-exc)
                         (print (.format "Error in the Crontab: {}" (repr e)) :file sys.stderr)))
-                    (.add self.--job-list next-job))))))
+                    (.add self.--job-list next-job)))))
           (with-lock-unchecked-release self.--job-wait-lock
             (.acquire self.--job-wait-lock))))))
 
