@@ -19,7 +19,7 @@ import re
 
 class Plugin(object):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.time_descriptor_to_seconds = {'d': 86400, 'h': 3600, 't': 3600, 'm': 60, 's': 1}
         time_descriptors = r'(d(ag(er)?|ays?)?|t(imer?)?|h(ours?)?|m(inut(es?|t(er)?))?|s(econds?|ekund(er)?)?)'
         self.initial_phrase = re.compile(r'^\s*((remind me in)|(minn meg på om))\s+(?P<reminder_obj>.+)$')

@@ -14,7 +14,7 @@ from os import getenv
 
 class Plugin(object):
 
-    def __init__(self, *args):
+    def __init__(self, **kwargs):
         self.backends = dict()
         self.prefix = "data" + sep + "karma"
         self.suffix = ".karma"

@@ -3,7 +3,7 @@
 (import re)
 
 (defclass Plugin []
-  (defn --init-- [self]
+  (defn --init-- [self &kwargs _]
     (setv
       self.jobs {}
       self.descriptor-to-secs {"d" 86400 "h" 3600 "t" 3600 "m" 60 "s" 1}
