@@ -29,6 +29,7 @@
       (except [e [Exception]]
         (print "==================================")
         (print f"Crashed trying to load '{plugin}'")
+        (traceback.print-exc)
         (print (repr e)))))
 
   (defn --unload-plugin [self plugin]
