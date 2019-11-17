@@ -2,6 +2,7 @@
 (import [configparser [ConfigParser]])
 (import [os.path [isfile]])
 (import sys)
+(import traceback)
 
 (defclass PluginBot [ProtocolBot]
   (defn --init-- [self config]
@@ -14,13 +15,14 @@
 
   (defn --load-plugin [self plugin]
     (try
-      (setv self.--plugins (--import-- f"plugins.{plugin}" (globals) (locals) []))
-      (setv config-path f"plugins/{plugin}/plugin.cfg")
-      (setv kwargs {})
-      (if (isfile config-path)
-          (do (setv config (ConfigParser))
-              (.read config config-path)
-              (setv (get kwargs "config") config)))
+      (setv
+        self.--plugins (--import-- f"plugins.{plugin}" (globals) (locals) [])
+        config-path f"plugins/{plugin}/plugin.cfg"
+        kwargs {}
+        (get kwargs "config") { #** self.config
+                                #** (if (isfile config-path)
+                                        (.read (ConfigParser) config-path)
+                                        {})})
       (setv (get self.--functions plugin)
             (eval (read-str f"(plugins.{plugin}.Plugin #** kwargs)")
                   {"plugins" self.--plugins "kwargs" kwargs}))
@@ -55,6 +57,7 @@
                (self.-send-message ~code context)
                (except [e Exception]
                  (.append unloads plugin)
+                 (traceback.print-exc)
                  (print (.format "Plugin {} raised: {}" plugin (str e))))))
            (for [key unloads] (self.--unload-plugin key)))))
 
