@@ -1,5 +1,5 @@
 (import [.ProtocolBot [ProtocolBot]])
-(import [configparser [ConfigParser]])
+(import [yaml [load FullLoader]])
 (import [os.path [isfile]])
 (import sys)
 (import traceback)
@@ -17,11 +17,11 @@
     (try
       (setv
         self.--plugins (--import-- f"plugins.{plugin}" (globals) (locals) [])
-        config-path f"plugins/{plugin}/plugin.cfg"
+        config-path f"plugins/{plugin}/plugin.yml"
         kwargs {}
         (get kwargs "config") { #** self.config
                                 #** (if (isfile config-path)
-                                        (.read (ConfigParser) config-path)
+                                        (load (open config-path "r") :Loader FullLoader)
                                         {})})
       (setv (get self.--functions plugin)
             (eval (read-str f"(plugins.{plugin}.Plugin #** kwargs)")
