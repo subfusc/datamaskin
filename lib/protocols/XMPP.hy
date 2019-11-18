@@ -5,7 +5,12 @@
 (defclass XMPPContext [Context]
   (defn --init-- [self message stream from-nick bot-name stream-type]
     (.--init-- (super) message stream from-nick bot-name)
-    (setv self.type stream-type)))
+    (setv self.type stream-type))
+
+  (defn --repr-- [self]
+    (+ f"XMPPContext [message: {self.message}, stream: {self.stream}, "
+       f"from-nick: {self.from-nick}, name: {self.name}, self-nick: {self.self-nick}"
+       f", type: {self.type}]")))
 
 (defclass XMPP [ClientXMPP]
   (defn --init-- [self cmd listen config]
@@ -15,6 +20,7 @@
       self.xmpp-conf (get config "XMPP")
       self.nick (get config "nick")
       self.rooms (get config "rooms")
+      self.admins (get config "XMPP" "admins")
       self.cmdp (get config "command_prefix"))
     (ClientXMPP.--init-- self (get self.xmpp-conf "jid") (get self.xmpp-conf "password"))
     (.register_plugin self "xep_0030")
@@ -23,6 +29,9 @@
 
   (defn join-room [self room]
     (.joinMUC (get self.plugin "xep_0045") room self.nick :wait True))
+
+  (defn leave-room [self room]
+    (.leaveMUC (get self.plugin "xep_0045") room self.nick :msg "I don't wanna be here!"))
 
   (defn session-start [self event]
     (.send_presence self)
@@ -43,7 +52,7 @@
                (self.cmd
                  (cut (get split-cmd 0) 1)
                  (.join " " (cut split-cmd 1))
-                 :admin '()
+                 :admin (in context.from-nick self.admins)
                  :context context))
              (self.listen context.message :context context))))
 
@@ -60,10 +69,10 @@
                   (self.cmd
                     (cut (get split-cmd 0) 1)
                     (.join " " (cut split-cmd 1))
-                    :admin True
+                    :admin False
                     :context context))))))
 
-  (defn outbound-message [self &optional [message None] [context None] &kwargs kw]
+  (defn outbound-message [self message context &kwargs kw]
     (.send-message self :mto context.stream :mbody message :mtype context.type))
 
   (defn start [self]

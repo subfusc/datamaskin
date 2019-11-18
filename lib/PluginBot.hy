@@ -69,15 +69,16 @@
                 [(= command "unload") (self.--unload-plugin args)]
                 [(= command "reload") (do
                                         (self.--unload-plugin args)
-                                        (self.--load-plugin args))]
-                [True (run-plugin-with-error-handling
-                        (if (hasattr (get self.--functions plugin) "cmd")
-                            (.cmd (get self.--functions plugin)
-                                  command args context.stream
-                                  :from_nick context.from-nick
-                                  :context context
-                                  #** kwargs)))])
+                                        (self.--load-plugin args))])
           (except [Exception])))
+
+    (run-plugin-with-error-handling
+      (if (hasattr (get self.--functions plugin) "cmd")
+          (.cmd (get self.--functions plugin)
+                command args context.stream
+                :from_nick context.from-nick
+                :context context
+                #** kwargs)))
     (.cmd (super) command args :context context #** kwargs))
 
   (defn listen [self message &optional [context '()] &kwargs kwargs]
