@@ -39,19 +39,22 @@
     (cond [(= command "nag")
            (do
              (setv sa (self.-split-arg args))
-             (unless (or (= None sa) (in (second sa) self.jobs))
-               (setv
-                 (get self.jobs (second sa)) ((get kwargs "new_job")
-                                               (+ (time) (self.-time-obj-parse (first sa)))
-                                           self.-nag
-                                              [channel
-                                               (.strip (get sa 2))
-                                               (second sa)
-                                               (self.-time-obj-parse (first sa))
-                                               (get kwargs "new_job")]))))]
+             (if (or (= None sa) (in (second sa) self.jobs))
+                 [[0 channel (get kwargs "from_nick") "Allready nagging that"]]
+                 (setv (get self.jobs (second sa))
+                       ((get kwargs "new_job")
+                         (+ (time) (self.-time-obj-parse (first sa)))
+                        self.-nag
+                        [channel
+                         (.strip (get sa 2))
+                         (second sa)
+                         (self.-time-obj-parse (first sa))
+                         (get kwargs "new_job")]))))]
           [(and (= command "stop-nag") (in args self.jobs))
-           (do ((get kwargs "del_job") (get self.jobs args))
-                   (del (get self.jobs args)))]))
+           (do ((get kwargs "del_job") (get self.jobs args)) (del (get self.jobs args)))]
+          [(and (get kwargs "admin") (= command "reset-nag"))
+           (do (for [job self.jobs] ((get kwargs "del_job") (get self.jobs job)))
+               (setv self.jobs {}))]))
 
 
   (defn listen [self msg channel &kwargs kwargs]
