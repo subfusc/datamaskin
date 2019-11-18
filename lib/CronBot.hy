@@ -41,20 +41,29 @@
 
   (defn add [self job]
     (with-lock self.--lock
-      (do
-        (setv insert-at None)
-        (for [[index stored-job] (enumerate self.--tab)]
-          (if (> job.time stored-job.time) (do (setv insert-at index) (break)))
-          (else (.append self.--tab job)))
-        (if (!= insert-at None) (.insert self.--tab insert-at job)))))
+      (if (and job (instance? CronJob job))
+          (do
+            (setv insert-at None)
+            (for [[index stored-job] (enumerate self.--tab)]
+              (if (> job.time stored-job.time) (do (setv insert-at index) (break)))
+              (else (.append self.--tab job)))
+            (if (!= insert-at None) (.insert self.--tab insert-at job))))))
+
+  (defn clear [self]
+    (with-lock self.--lock
+      (setv self.--tab [])))
 
   (defn del [self uuid]
     (with-lock self.--lock
       (do
-        (setv i 0)
+        (setv i -1)
         (for [[index stored-job] (enumerate self.--tab)]
           (if (= uuid stored-job.id) (do (setv i index) (break))))
-        (del (get self.--tab i)))))
+        (if (>= i 0) (del (get self.--tab i))))))
+
+  (defn --repr-- [self]
+    (with-lock self.--lock
+      (+ "[" (.join ", " (map (fn [o] (repr o)) self.--tab)) "]")))
 
   (defn peek [self]
     (get self.--tab -1))
@@ -88,7 +97,8 @@
     job.id)
 
   (defn del-job [self uuid]
-    (.del self.--job-list uuid))
+    (with-lock self.--external-synchronization
+      (.del self.--job-list uuid)))
 
   (defn stop [self]
     (with-lock self.--external-synchronization
@@ -97,19 +107,26 @@
         (if (and self.--timer (.is_alive self.--timer)) (.cancel self.--timer))
         (.release self.--job-wait-lock))))
 
+  (defn clear [self]
+    (with-lock self.--external-synchronization
+      (.clear self.--job-list)))
+
+  (defn --repr-- [self] (repr self.--job-list))
+
   (defn run [self]
     (while (not self.--exit)
       (print f"Checking for new job" :file sys.stderr :flush True)
       (if (> (len self.--job-list) 0)
           (do
             (with-lock self.--external-synchronization
-              (do
-                (.acquire self.--job-wait-lock)
-                (setv self.--timer (Timer
-                                     (- (. (.peek self.--job-list) time) (.time time))
-                                     (fn [lock] (if (.locked lock) (.release lock)))
-                                     [self.--job-wait-lock]))
-                (.start self.--timer)))
+              (if (> (len self.--job-list) 0)
+                  (do
+                    (.acquire self.--job-wait-lock)
+                    (setv self.--timer (Timer
+                                         (- (. (.peek self.--job-list) time) (.time time))
+                                         (fn [lock] (if (.locked lock) (.release lock)))
+                                         [self.--job-wait-lock]))
+                    (.start self.--timer))))
             (with-lock-unchecked-release self.--job-wait-lock
               (do
                 (setv next-job (.pop self.--job-list))
@@ -139,8 +156,9 @@
       (fn [uuid] (.del-job self.--tab uuid))))
 
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
-    (.add-jobs-to-kwarg self context kwargs)
-    (.cmd (super CronBot self) command args :context context #** kwargs))
+    (cond [(and (get kwargs "admin") (= command "reset-cron")) (.clear self.--tab)]
+          [True (do (.add-jobs-to-kwarg self context kwargs)
+                    (.cmd (super CronBot self) command args :context context #** kwargs))]))
 
   (defn listen [self message &optional [context '()] &kwargs kwargs]
     (.add-jobs-to-kwarg self context kwargs)
