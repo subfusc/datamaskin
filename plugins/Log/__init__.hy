@@ -47,4 +47,4 @@
           channel))
 
   (defn stop [self]
-    (for [fd self.files] (.close fd))))
+    (for [fd (.values self.files)] (.close fd))))

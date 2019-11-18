@@ -144,7 +144,11 @@
 
   (defn listen [self message &optional [context '()] &kwargs kwargs]
     (.add-jobs-to-kwarg self context kwargs)
-    (.listen (super CronBot self) message :context context #** kwargs)))
+    (.listen (super CronBot self) message :context context #** kwargs))
+
+  (defn stop [self]
+    (.stop self.--tab)
+    (.stop (super))))
 
 (defmain [&rest _]
   (.start (CronBot {"nick" "Test"

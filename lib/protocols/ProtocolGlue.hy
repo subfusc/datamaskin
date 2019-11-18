@@ -23,7 +23,8 @@
   ;; * start [self]
   ;; ** This is to start the main loop of the protocol, and should
   ;;    block the thread running it.
-  ;;
+  ;; * protocol-stop [self]
+  ;; ** TODO
   ;; Optional functions
   ;; * join-room [self room]
   ;; ** If the protocol has a room concept, this function will be
@@ -42,6 +43,7 @@
   ;; Placeholder functions to be overriden by the parent classes
   (defn cmd [self cmd args &kwargs kwargs])
   (defn listen [self message &kwargs kwargs])
+  (defn stop [self] (.protocol-stop self.protocol))
 
   (defn outbound-message [self &optional [message None] [context None] &kwargs kwargs]
     (if (or (= None message) (= None context)) (raise (Exception "missing arguments")))

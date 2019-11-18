@@ -71,13 +71,6 @@
     (self.add_event_handler "groupchat_message" self.group-message)
     (self.add_event_handler "message" self.message)
     (.connect self)
-    (.process self :block True)))
+    (.process self :block True))
 
-;; (defn cmd [self command args &kwargs kwargs]
-;;   (if (and (in "admin" kwargs) (get kwargs "admin") args (not (in " " args)) (in "@" args))
-;;       (cond [(= command "join") (.join-room self args)]
-;;             [(= command "leave") (.leaveMUC
-;;                                    (get self.plugin "xep_0045")
-;;                                    args
-;;                                    self.nick
-;;                                    :msg "I don't wanna be here!")])))
+  (defn protocol-stop [self]))

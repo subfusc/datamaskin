@@ -88,4 +88,15 @@
                    :from_nick context.from-nick
                    :context context
                    #** kwargs)))
-    (.listen (super) message :context context #** kwargs)))
+    (.listen (super) message :context context #** kwargs))
+
+  (defn stop [self]
+    (for [plugin (.keys self.--functions)]
+      (try
+        (if (hasattr (get self.--functions plugin) "stop")
+            (.stop (get self.--functions plugin)))
+        (except [e Exception]
+          (traceback.print-exc)
+          (print (repr e))
+          (print f"Exception stopping plugin: {plugin}"))))
+    (.stop (super))))

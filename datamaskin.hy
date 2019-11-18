@@ -12,9 +12,10 @@
       (quit)))
   (load (open "config.yml" "r") :Loader FullLoader))
 
-
 (defmain [&rest _]
   (setv config (read-config))
   (setv bot (lib.CronBot config))
-  (.basicConfig logging :level logging.DEBUG :format "%(levelname)-8s %(message)s")
-  (.start bot))
+  (.basicConfig logging :level logging.WARN :format "%(levelname)-8s %(message)s")
+  (try
+    (.start bot)
+    (finally (.stop bot))))

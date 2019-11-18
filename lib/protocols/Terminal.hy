@@ -13,6 +13,7 @@
   (defn --init-- [self cmd listen config]
     (setv
       self.config config
+      self.exit False
       self.cmdc (get config "command_prefix")
       self.-input sys.stdin
       self.-output sys.stdout
@@ -55,9 +56,11 @@
         (self.args-to-listen line)))
 
   (defn start [self]
-    (setv exit False)
-    (while (not exit)
+    (while (not self.exit)
       (setv event (self.wait-for-event))
-      (cond [(and (in "command" event) (= "exit" (get event "command"))) (setv exit True)]
+      (cond [(and (in "command" event) (= "exit" (get event "command"))) (setv self.exit True)]
             [(in "command" event) (self.cmd #** event)]
-            [(in "message" event) (self.listen #** event)]))))
+            [(in "message" event) (self.listen #** event)])))
+
+  (defn protocol-stop [self]
+    (sys.exit 0)))
