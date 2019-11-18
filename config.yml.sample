@@ -9,3 +9,6 @@ rooms: # List of rooms
 XMPP: # Config for the xmpp protocol
   jid: foo@example.com
   password: reallysecurepassword
+  admins:
+   - jid@jabber.example.com
+   - jid2@jabber.example.com
