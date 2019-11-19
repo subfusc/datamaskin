@@ -20,6 +20,8 @@
           (finally (if (.locked ~lock) (.release ~lock))))))
 
 (defclass CronJob []
+  "An object holding a job for the CronTab with an uuid for reference"
+
   (defn --init-- [self time function args context]
     (setv
       self.id (uuid4)
@@ -32,6 +34,8 @@
     f"<job {(repr self.id)}: {self.time}>"))
 
 (defclass CronList []
+  "The list of CronJobs that will be used in the CronTab"
+
   (defn --init-- [self]
     (setv self.--tab [])
     (setv self.--lock (Lock)))
@@ -74,6 +78,8 @@
           (.pop self.--tab)))))
 
 (defclass CronTab [Thread]
+  "A CronTab, running something on a given time, for datamaskin"
+
   (defn --init-- [self messaging-function]
     (.--init-- (super CronTab self))
     (setv
@@ -142,6 +148,8 @@
             (.acquire self.--job-wait-lock))))))
 
 (defclass CronBot [PluginBot]
+  "The bot integration against the CronTab allowing plugins to schedule events"
+
   (defn --init-- [self config]
     (.--init-- (super) config)
     (setv self.--tab (CronTab self.-send-message))

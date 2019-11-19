@@ -24,7 +24,7 @@
   ;; ** This is to start the main loop of the protocol, and should
   ;;    block the thread running it.
   ;; * protocol-stop [self]
-  ;; ** TODO
+  ;; ** Should do any necessary cleanup when the protocol aborts
   ;; Optional functions
   ;; * join-room [self room]
   ;; ** If the protocol has a room concept, this function will be
