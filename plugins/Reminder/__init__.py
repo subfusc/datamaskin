@@ -48,7 +48,6 @@ class Plugin(object):
         return (None, None, None)
 
     def cmd(self, command, args, channel, **kwargs):
-        print(repr(kwargs))
         if command == "reminder":
             seconds, time_desc, message = self._time_obj_parse(args)
             if seconds:

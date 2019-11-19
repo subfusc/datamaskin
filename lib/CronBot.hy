@@ -115,7 +115,6 @@
 
   (defn run [self]
     (while (not self.--exit)
-      (print f"Checking for new job" :file sys.stderr :flush True)
       (if (> (len self.--job-list) 0)
           (do
             (with-lock self.--external-synchronization
