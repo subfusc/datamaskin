@@ -17,8 +17,8 @@
       (fn [uuid] (.del-job self.--tab uuid))))
 
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
-    (cond [(and (get kwargs "admin") (= command "reset-cron")) (.clear self.--tab)]
-          [(and (get kwargs "admin") (= command "new-cron"))
+    (cond [(and (get kwargs "admin") (= command "cron-reset")) (.clear self.--tab)]
+          [(and (get kwargs "admin") (= command "cron-new"))
            (do (try (.stop self.--tab)
                     (except [e Exception]
                       (print (repr e))
