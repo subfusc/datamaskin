@@ -12,6 +12,3 @@
                (self.protocol.join-room args)]
               [(and (= "part" cmd) (> (len args) 0) (= (.count cmd " ") 0))
                (self.protocol.leave-room args)]))))
-
-(defmain [&rest _]
-  (.start (ProtocolBot {"nick" "Test" "command_prefix" "!"})))

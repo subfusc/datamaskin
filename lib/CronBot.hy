@@ -36,8 +36,3 @@
   (defn stop [self]
     (.stop self.--tab)
     (.stop (super))))
-
-(defmain [&rest _]
-  (.start (CronBot {"nick" "Test"
-                    "command_prefix" "!"
-                    "plugins" ["Useless" "Reminder"]})))
