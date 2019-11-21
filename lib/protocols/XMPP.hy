@@ -1,16 +1,17 @@
 ;; -*- coding: utf-8 -*-
 (import [sleekxmpp [ClientXMPP]])
 (import [.Context [Context]])
+(import sys)
 
 (defclass XMPPContext [Context]
-  (defn --init-- [self message stream from-nick bot-name stream-type]
+  (defn --init-- [self message stream from-nick jid bot-name stream-type]
     (.--init-- (super) message stream from-nick bot-name)
-    (setv self.type stream-type))
+    (setv self.type stream-type self.jid jid))
 
   (defn --repr-- [self]
     (+ f"XMPPContext [message: {self.message}, stream: {self.stream}, "
        f"from-nick: {self.from-nick}, name: {self.name}, self-nick: {self.self-nick}"
-       f", type: {self.type}]")))
+       f", type: {self.type}, jid: {self.jid}]")))
 
 (defclass XMPP [ClientXMPP]
   (defn --init-- [self cmd listen config]
@@ -40,9 +41,10 @@
       (self.join-room room)))
 
   (defn group-message [self msg]
-    (setv context (XMPPContext (. msg ["body"])
+    (setv context (XMPPContext (.strip (. msg ["body"]))
                                (.join "" (. msg ["from"] bare))
-                               (. msg ["from"] resource)
+                               (. msg ["mucnick"])
+                               (. msg ["from"] bare)
                                self.nick
                                (. msg ["type"])))
     (and (!= context.from-nick self.nick)
@@ -58,9 +60,10 @@
 
   (defn message [self msg]
     (if (in (get msg "type") ["chat" "normal"])
-        (do (setv context (XMPPContext (. msg ["body"])
+        (do (setv context (XMPPContext (.strip (. msg ["body"]))
                                (.join "" (. msg ["from"] bare))
-                               (. msg ["from"] resource)
+                               (. msg ["from"] user)
+                               (. msg ["from"] bare)
                                self.nick
                                (. msg ["type"])))
             (if (and (!= context.from-nick self.nick) (= (get context.message 0) self.cmdp))
@@ -69,7 +72,7 @@
                   (self.cmd
                     (cut (get split-cmd 0) 1)
                     (.join " " (cut split-cmd 1))
-                    :admin False
+                    :admin (in context.jid (get self.xmpp-conf "admins"))
                     :context context))))))
 
   (defn outbound-message [self message context &kwargs kw]
