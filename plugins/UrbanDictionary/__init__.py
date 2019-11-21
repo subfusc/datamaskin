@@ -27,16 +27,18 @@ class Plugin(object):
                          "Sorry, I couldn't find \"{w}\"".format(w = args))]
 
     def search_urbandictionary(self, query):
-        result = urlopen("http://api.urbandictionary.com/v0/define?" + urlencode({'term': query})).read()
-        answer = json.loads(result)
-        word = answer['list'][0]
-        if word['word'] == query:
-            return word
-        else:
-            return False
-
+        try:
+            result = urlopen("http://api.urbandictionary.com/v0/define?" + urlencode({'term': query})).read()
+            answer = json.loads(result)
+            word = answer['list'][0]
+            if word['word'] == query:
+                return word
+            return None
+        except Exception:
+            return None
 
 if __name__ == '__main__':
     p = Plugin()
     print(p.cmd('define', 'GUI', 'test'))
     print(p.cmd('define', "Åhus", 'test'))
+    print(p.cmd('define', "cloudborn", 'test'))
