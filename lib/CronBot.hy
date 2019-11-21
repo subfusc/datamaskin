@@ -1,5 +1,5 @@
 (import [.PluginBot [PluginBot]])
-(import [.cron [CronTab]])
+(import [.cron [CronTab CronJob]])
 
 (defclass CronBot [PluginBot]
   "The bot integration against the CronTab allowing plugins to schedule events"
