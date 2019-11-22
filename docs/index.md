@@ -11,3 +11,4 @@ is running.
 - [UrbanDictonary](/datamaskin/urban-dictionary) Look up things on urban
 - [Useless](/datamaskin/useless/) A collection of uselss commands
 - [Reddit](/datamaskin/reddit/) Interacting with reddit
+- [RexReplace](/datamaskin/rex-replace/) correct your self... Or others.
