@@ -7,4 +7,5 @@ is running.
 
 ## Plugins
 
-- [Nagger](/datamaskin/nagger) A plugin to nag people into answering
+- [Nagger](/datamaskin/nagger) Nag people into answering
+- [UrbanDictonar](/datamaskin/urban-dictionary) Look up things on urban
