@@ -2,6 +2,7 @@
 (import [uuid [UUID uuid4]])
 (import re)
 (import [datetime [timedelta]])
+(import [time [ctime]])
 
 (defclass CronJob []
   "An object holding a job for the CronTab with an uuid for reference"
@@ -10,13 +11,16 @@
                                    "(T(?P<h>\d+H)?(?P<m>\d+M)?(?P<s>\d+S)?)?$"))
    days-in {"year" 365 "month" 30 "week" 7}] ;; Middle ground, temp
 
-  (defn --init-- [self time function args context &optional [start None] [stop None]]
+  (defn --init-- [self time function args context
+                  &optional [start None] [stop None] [disp-name None] [plugin None]]
     (setv
       self.id (uuid4)
       self.time time
       self.recurring (if (self.interval? time) True False)
       self.function function
       self.args args
+      self.disp-name disp-name
+      self.plugin plugin
       self.context context))
 
   (defn interval? [self interval]
@@ -27,5 +31,8 @@
     (.total_seconds
       (timedelta :days (+ 1))))
 
+  (defn --str-- [self] (or self.disp-name (ctime self.time)))
+
   (defn --repr-- [self]
-    f"<job {(repr self.id)}: {self.time}>"))
+    (+ f"<job:{(repr self.id)} time: {(ctime self.time)}, "
+       f"function: {self.function}, context: {(repr self.context)}>")))

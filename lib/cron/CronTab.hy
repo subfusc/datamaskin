@@ -33,6 +33,11 @@
   (defn --len-- [self]
     (len self.--job-list))
 
+  (defn at [self key]
+    (.at self.--job-list key))
+
+  (defn --str-- [self] (str self.--job-list))
+
   (defn add-job [self job]
     (with-lock self.--external-synchronization
       (do

@@ -40,9 +40,17 @@
           (if (= uuid stored-job.id) (do (setv i index) (break))))
         (if (>= i 0) (del (get self.--tab i))))))
 
+  (defn at [self key]
+    (get self.--tab key))
+
   (defn --repr-- [self]
     (with-lock self.--lock
       (+ "[" (.join ", " (map (fn [o] (repr o)) self.--tab)) "]")))
+
+  (defn --str-- [self]
+    (with-lock self.--lock
+      (.join ", " (map (fn [o] f"{(first o)}: {(str (second o))}")
+                          (zip (range 0 (len self.--tab)) self.--tab)))))
 
   (defn peek [self]
     (get self.--tab -1))
