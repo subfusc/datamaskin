@@ -33,6 +33,11 @@
         (print (repr e)))))
 
   (defn --unload-plugin [self plugin]
+    (if (hasattr (get self.--functions plugin) "stop")
+        (.stop (get self.--functions plugin)))
+    (.--unload-wo-stop self plugin))
+
+  (defn --unload-wo-stop [self plugin]
     (setv mods []
           mprefix (+ "plugins." plugin))
     (for [module sys.modules]
@@ -66,11 +71,24 @@
     (if (and (in "admin" kwargs) (get kwargs "admin"))
         (try
           (cond [(= command "load") (self.--load-plugin args)]
+                [(= command "forceunload") (self.--unload-wo-stop args)]
                 [(= command "unload") (self.--unload-plugin args)]
                 [(= command "reload") (do
                                         (self.--unload-plugin args)
-                                        (self.--load-plugin args))])
-          (except [Exception])))
+                                        (self.--load-plugin args))]
+                [(= command "loaded") (.outbound-message
+                                        self
+                                        :message (.format "Loaded: {}"
+                                                          (.join ", " (.keys self.--functions)))
+                                        :context context)])
+          (if (in command ["load" "unload" "reload" "forceunload"])
+              (.outbound-message self
+                                 :message f"{command} «{args}»: [ OK ]"
+                                 :context context))
+          (except [e Exception]
+            (.outbound-message self
+                               :message f"{command} «{args}»: [ FAILED ] "
+                               :context context))))
 
     (run-plugin-with-error-handling
       (if (hasattr (get self.--functions plugin) "cmd")
