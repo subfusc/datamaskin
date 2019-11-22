@@ -1,5 +1,7 @@
 # Nagger plugin
 
+[Back](/datamaskin/)
+
 Nag people into answering!
 
 - `nag <interval> <name> <message>` Nag someone using a message every

@@ -1,5 +1,7 @@
 # Admin Commands
 
+[Back](/datamaskin/)
+
 These are the commands available to admins of the bot ordered by
 functionality type.
 
