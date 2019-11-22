@@ -12,3 +12,4 @@ is running.
 - [Useless](/datamaskin/useless/) A collection of uselss commands
 - [Reddit](/datamaskin/reddit/) Interacting with reddit
 - [RexReplace](/datamaskin/rex-replace/) correct your self... Or others.
+- [KosKarma](/datamaskin/kos-karma/) Check the temperature of the channel towards stuff.
