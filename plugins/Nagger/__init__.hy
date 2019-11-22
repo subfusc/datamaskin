@@ -32,7 +32,8 @@
 
   (defn -nag [self channel msg user interval add-job]
     (setv (get self.jobs user)
-          (add-job (+ (time) interval) self.-nag [channel msg user interval add-job]))
+          (add-job (+ (time) interval) self.-nag [channel msg user interval add-job]
+                   :disp-name f"Nag[{user}]"))
     [[0 channel user msg]])
 
   (defn cmd [self command args channel &kwargs kwargs]
@@ -49,7 +50,8 @@
                          (.strip (get sa 2))
                          (second sa)
                          (self.-time-obj-parse (first sa))
-                         (get kwargs "new_job")]))))]
+                         (get kwargs "new_job")]
+                        :disp-name f"Nag[{(second sa)}]"))))]
           [(and (= command "stop-nag") (in args self.jobs))
            (do ((get kwargs "del_job") (get self.jobs args)) (del (get self.jobs args)))]
           [(and (get kwargs "admin") (= command "reset-nag"))
