@@ -18,4 +18,6 @@
   (.basicConfig logging :level logging.WARN :format "%(levelname)-8s %(message)s")
   (try
     (.start bot)
+    (except [e Exception]
+      (print (repr e)))
     (finally (.stop bot))))
