@@ -1,6 +1,7 @@
 nick: dasbot
 command_prefix: .
 protocol: terminal # has xmpp right now
+help_url: https://subfusc.github.io/datamaskin/
 plugins: # plugins to load at start
  - Useless
 rooms: # List of rooms
