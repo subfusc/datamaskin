@@ -71,7 +71,7 @@
     (if (and (in "admin" kwargs) (get kwargs "admin"))
         (try
           (cond [(= command "load") (self.--load-plugin args)]
-                [(= command "forceunload") (self.--unload-wo-stop args)]
+                [(= command "force-unload") (self.--unload-wo-stop args)]
                 [(= command "unload") (self.--unload-plugin args)]
                 [(= command "reload") (do
                                         (self.--unload-plugin args)
