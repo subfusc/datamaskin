@@ -13,3 +13,4 @@ is running.
 - [Reddit](/datamaskin/reddit/) Interacting with reddit
 - [RexReplace](/datamaskin/rex-replace/) correct your self... Or others.
 - [KosKarma](/datamaskin/kos-karma/) Check the temperature of the channel towards stuff.
+- [Reminder](/datamaskin/reminder/) Remind someone of something after some time.
