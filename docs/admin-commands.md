@@ -5,8 +5,8 @@
 These are the commands available to admins of the bot ordered by
 functionality type.
 
-Who is admin is determined by the protocol that is run. The criteria
-for the current procols are:
+Who the admins are is determined by the protocol that is run. The criteria
+for the current protocols are:
 
 - `terminal` Always admin
 - `xmpp` Needs to be able to message the bot directly and be in the

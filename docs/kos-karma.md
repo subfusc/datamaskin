@@ -7,13 +7,13 @@ See what people or things are popular in your channels or not.
 ## Commands
 - `+1 [object]` Add karma to something.
 - `-1 [object]` Remove karma from something.
-- `karma_en` Show english text with details about  karma for a object.
-- `karma` Show norwegian text with details about karma for a object.
+- `karma_en` Show english text with details about  karma for an object.
+- `karma` Show a norwegian text with details about karma for an object.
 - `karmaprec` Show the same text as the above just with higher
   precision on the calculated total.
-- `hikarma`, `high` Show the top scorers in the channel
-- `lokarma`, `low` Show the bottom scorers in a channel
-- `høy`, `snill` Show the top scorer with norwegian text.
+- `hikarma`, `high` Show the top scorers in the channel.
+- `lokarma`, `low` Show the bottom scorers in a channel.
+- `høy`, `snill` Show the top scorers with norwegian text.
 - `lav`, `slem` Show the bottom scorers with norwegian text.
 - `rmkarma [object]` An admin kan remove all karma from an object, in case of trolls.
 
@@ -30,5 +30,5 @@ and `(decf object)` respectively. `incf` and `decf` can take an
 integer argument as last argument, with a max of 3. Example: `(incf
 object 3)`
 
-The last way to increase karma is to use latex style
+The last way to increase karma is to use LaTeX style
 `\addtocounter{object}{number}`, the max here is also 3.

@@ -2,6 +2,8 @@
 
 [Back](/datamaskin/)
 
-Lookup stuff on urban dictionary
+Lookup stuff up on urban dictionary.
 
-- `define <word>` Get urban dictionary to define your word
+## Commands
+
+- `define <word>` Get urban dictionary to define your word and give an example.
