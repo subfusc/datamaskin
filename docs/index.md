@@ -8,4 +8,5 @@ is running.
 ## Plugins
 
 - [Nagger](/datamaskin/nagger) Nag people into answering
-- [UrbanDictonar](/datamaskin/urban-dictionary) Look up things on urban
+- [UrbanDictonary](/datamaskin/urban-dictionary) Look up things on urban
+- [Useless](/datamaskin/useless/) A collection of uselss commands
