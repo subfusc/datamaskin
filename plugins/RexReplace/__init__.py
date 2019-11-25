@@ -29,10 +29,9 @@ class Plugin(object):
                 to = m.group('to').strip('/')
                 for message in self._get_user_in_channel(kwargs['from_nick'],channel):
                     if from_re.search(message):
-                        print(message)
                         return [(0, channel, '{} mente "{}"'.format(kwargs['from_nick'],
                                                                     from_re.sub(to, message)))]
-                for user, messages in self._get_channel(channel).iteritems():
+                for user, messages in self._get_channel(channel):
                     for message in messages:
                         if from_re.search(message):
                             return [(0, channel,
