@@ -64,7 +64,7 @@ class Plugin:
             try:
                 return[(0, channel, nick, message)]
             except:
-                return[(0, channel, kwars['from_nick'], 'Couldn\'t convert to unicode. :(')]
+                return[(0, channel, kwargs['from_nick'], 'Couldn\'t convert to unicode. :(')]
 
     def listen(self, msg, channel, **kwargs):
         morn = self.morn_re.search(msg)

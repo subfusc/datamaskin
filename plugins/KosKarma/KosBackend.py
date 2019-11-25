@@ -147,7 +147,6 @@ class KosBackend(object):
         @rtype: None
         """
         if (database_name):
-            if DEBUG: print(e)            
             self.sql_db = sqlite3.connect(database_name, isolation_level="EXCLUSIVE") if database_name else None
             self.db_open = True if self.sql_db else False
         
