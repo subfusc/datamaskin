@@ -37,7 +37,7 @@ class KosBackend(object):
         """
         Create an instance of the KosBackend which calculates karma using the
         cosinus function.
-        
+
         @type database_name: string
         @param database_name: the location of the database to store karma
         @type decay_time: number
@@ -52,7 +52,7 @@ class KosBackend(object):
         self.decay_time = decay_time * 24 * 60 * 60 #: The calculated decay time
         self.sql_db = None #: the sql databse
         self.db_open = False #: tell that the database is open
-        self.lowercase = lowercase #: should I attempt to lowercase? 
+        self.lowercase = lowercase #: should I attempt to lowercase?
         self.connect(database_name=database_name)
 
 
@@ -62,7 +62,7 @@ class KosBackend(object):
             return self.sql_db.execute(string, values)
         else:
             return self.sql_db.execute(string)
-            
+
     def __com(self):
         self.sql_db.commit()
 
@@ -77,7 +77,7 @@ class KosBackend(object):
         if t == None: t = int(time())
         # stderr.write("X: {x} T: {t} COSCALC: {c}\n".format(x = x, t = t,
         # c = cos((pi * (t - x)) / (2 * self.decay_time))))
-        return cos((pi * (t - x)) / (2 * self.decay_time)) 
+        return cos((pi * (t - x)) / (2 * self.decay_time))
 
     def _opPropotional(self, x, t = None):
         if t == None: t = int(time())
@@ -93,11 +93,11 @@ class KosBackend(object):
     def _opPropotionalAlt(self, x, t = None):
         if t == None: t = int(time())
         return 1/((t-x)-((t-x)/2)+2) # Mangler decay time
-        
+
     def _addKarma(self, positive, entity):
         if self.db_open:
             user = self._checkUserOrCreateDatabase(entity)
-            self.__exe("INSERT INTO {table} (positive, date) VALUES (?, ?)".format(table = ("user" + str(user))), 
+            self.__exe("INSERT INTO {table} (positive, date) VALUES (?, ?)".format(table = ("user" + str(user))),
                         (positive, int(time())))
         else:
             raise DatabaseIsNotOpenError('The database is not open')
@@ -108,24 +108,24 @@ class KosBackend(object):
                        (entity.lower() if self.lowercase else entity, )).fetchone()
         # stderr.write(str(r) + "\n")
         return r[0] if r else False
-        
+
     def _conditionalCreateOverview(self):
         self.__exe("CREATE TABLE IF NOT EXISTS " + self.utable
                    + " (id INTEGER PRIMARY KEY, entity TEXT UNIQUE NOT NULL);")
-        
+
         for row in self.__exe("SELECT * FROM " + self.utable + ";"):
             self.__exe("CREATE TABLE IF NOT EXISTS " + ("user" + str(row[0]))
                                 + " (positive INTEGER, date INTEGER NOT NULL);")
-        
-                
+
+
     def _checkUserOrCreateDatabase(self, entity):
         user = self._userExists(entity)
         if not user:
             self.__exe("INSERT INTO {table} (id, entity) VALUES (?, ?);".format(table = self.utable),
                        (None, entity.lower() if self.lowercase else entity))
-            
+
             user = self._userExists(entity)
-            self.__exe("CREATE TABLE {table} (positive INTEGER, date INTEGER NOT NULL)".format(table = "user" + 
+            self.__exe("CREATE TABLE {table} (positive INTEGER, date INTEGER NOT NULL)".format(table = "user" +
                                                                                                str(user)))
         return user
 
@@ -134,8 +134,8 @@ class KosBackend(object):
         if user:
             self.__exe("DELETE FROM {table} WHERE id = ?;".format(table = self.utable), (user, ))
             self.__exe("DROP TABLE {table};".format(table = "user" + str(user)))
-            
-        
+
+
     def connect(self, database_name=None):
         """
         Connect to a karma database. Note: Its not necessary to call this function
@@ -149,7 +149,7 @@ class KosBackend(object):
         if (database_name):
             self.sql_db = sqlite3.connect(database_name, isolation_level="EXCLUSIVE") if database_name else None
             self.db_open = True if self.sql_db else False
-        
+
         if self.db_open:
             self._conditionalCreateOverview()
         else:
@@ -165,7 +165,7 @@ class KosBackend(object):
         if self.db_open:
             self.sql_db.close()
             self.db_open = False
-        
+
     def positiveKarma(self, entity):
         """
         Add a +1 karma to an entity
@@ -199,7 +199,7 @@ class KosBackend(object):
             return [ row[1] for row in self.__exe("SELECT * FROM {table};".format(table = self.utable)) ]
         except Exception:
             return []
-        
+
     def getKarma(self, entity, t = None, doNotDelete=False):
         """
         Calculate the karma of an entity at time t. If time is not given, the function will assume "now".
@@ -214,17 +214,17 @@ class KosBackend(object):
         @type doNotDelete: boolean
         @param doNotDelete: If you don't want stuff to be deleted when checking for a
         special time, set this to true!
-        
+
         @rtype: touple
         @return: the karma of an entity, the number of positive and the number of negative.
         """
         if t == None: t = time()
         if not self.db_open: raise DatabaseIsNotOpenError('The database is not opened')
         user = self._userExists(entity)
-        if user: 
+        if user:
             self.__com()
-            if not doNotDelete: 
-                self.__exe("DELETE FROM {table} WHERE date <= ?".format(table = ("user" + str(user))), 
+            if not doNotDelete:
+                self.__exe("DELETE FROM {table} WHERE date <= ?".format(table = ("user" + str(user))),
                            (t - self.decay_time, ))
             karma = 0
             pos = 0
@@ -258,10 +258,10 @@ class KosBackend(object):
         #print(t, t - self.decay_time)
         for entity in self.getAllEntities():
             karma = self.getKarma(entity, t=t)
-            if karma[1] == 0 and karma [2] == 0: 
+            if karma[1] == 0 and karma [2] == 0:
                 self.delEntity(entity)
                 continue
-            
+
             if len(rlist) < n:
                 for large_entity, x in zip(rlist, range(0, len(rlist) + 1)):
                     if large_entity[1][0] <= karma[0]:
@@ -275,7 +275,7 @@ class KosBackend(object):
                         rlist.pop()
                         break
         return rlist
-                
+
     def getNWorstList(self, n=5, t=None):
         """
         Calculate the bottom N entities with karma for a given time T. T is default
@@ -289,15 +289,15 @@ class KosBackend(object):
         @rtype: list
         @return: A list of the N entities with the worst karma inkl n/positive karma and n/negative karma.
         """
-        
+
         rlist = []
         if not t: t = time()
         for entity in self.getAllEntities():
             karma = self.getKarma(entity,t=t)
-            if karma[1] == 0 and karma[2] == 0: 
+            if karma[1] == 0 and karma[2] == 0:
                 self.delEntity(entity)
                 continue
-                
+
             if len(rlist) < n:
                 for large_entity, x in zip(rlist, range(0, len(rlist) + 1)):
                     if large_entity[1][0] >= karma[0]:
@@ -311,7 +311,7 @@ class KosBackend(object):
                         rlist.pop()
                         break
         return rlist
-    
+
 if __name__ == '__main__':
     db = KosBackend(':memory:', decay_time=0.0000001, lowercase=True)
     db.positiveKarma('Line')
