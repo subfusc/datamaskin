@@ -68,19 +68,19 @@ class Plugin(object):
         if command == "+1":
             if args:
                 if args != kwargs['from_nick']:
-                    self.backend(channel).positiveKarma(to_unicode(args.strip()))
+                    self.backend(channel).positiveKarma(args.strip())
             else:
                 return self.help(command, args, channel,**kwargs)
 
         if command == "-1":
             if args:
-                self.backend(channel).negativeKarma(to_unicode(args.strip()))
+                self.backend(channel).negativeKarma(args.strip())
             else:
                 return self.help(command, args, channel,**kwargs)
 
         if command == "karma_en":
             if args:
-                karma = self.backend(channel).getKarma(to_unicode(args.strip()))
+                karma = self.backend(channel).getKarma(args.strip())
                 ret = "{e} has karma: {k:.2f} with a total of {p} positive and {n} negative.".format(e = args, k = karma[0], p = karma[1], n = karma[2])
                 return [(1, channel, ret)]
             else:
@@ -88,7 +88,7 @@ class Plugin(object):
 
         if command == "karma":
             if args:
-                karma = self.backend(channel).getKarma(to_unicode(args.strip()))
+                karma = self.backend(channel).getKarma(args.strip())
                 ret = "{e} har karma: {k:.1f} og har fått {p} positive og {n} negative.".format(e = args, k = karma[0], p = karma[1], n = karma[2])
                 return [(1, channel, ret)]
             else:
@@ -96,7 +96,7 @@ class Plugin(object):
 
         if command == "karmaprec":
             if args:
-                karma = self.backend(channel).getKarma(to_unicode(args.strip()))
+                karma = self.backend(channel).getKarma(args.strip())
                 ret = "{e} has karma {k:.5f} with a total of {p} positive and {n} negative.".format(e = args, k = karma[0], p = karma[1], n = karma[2])
                 return [(1, channel, ret)]
             else:
