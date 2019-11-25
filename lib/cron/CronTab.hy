@@ -73,21 +73,23 @@
                   (do
                     (.acquire self.--job-wait-lock)
                     (setv self.--timer (Timer
-                                         (- (. (.peek self.--job-list) time) (.time time))
+                                         (- (. (.peek self.--job-list) next-run) (.time time))
                                          (fn [lock] (if (.locked lock) (.release lock)))
                                          [self.--job-wait-lock]))
                     (.start self.--timer))))
             (with-lock-unchecked-release self.--job-wait-lock
               (do
-                (setv next-job (.pop self.--job-list))
-                (if (and next-job (< next-job.time (.time time)))
+                (setv next-job (.borrow self.--job-list))
+                (if (and next-job (< next-job.next-run (.time time)))
                     (try
                       (self.--messaging-function
                         (next-job.function #* next-job.args)
                         next-job.context)
                       (except [e Exception]
+                        (.del self.--job-list next-job.uuid)
                         (traceback.print-exc)
-                        (print (.format "Error in the Crontab: {}" (repr e)) :file sys.stderr)))
-                    (.add self.--job-list next-job)))))
+                        (print (.format "Error in the Crontab: {}" (repr e)) :file sys.stderr))
+                      (finally (.continue self.--job-list)))
+                    (.unborrow self.--job-list)))))
           (with-lock-unchecked-release self.--job-wait-lock
             (.acquire self.--job-wait-lock))))))

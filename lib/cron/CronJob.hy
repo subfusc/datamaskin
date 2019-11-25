@@ -1,38 +1,56 @@
 ;; -*- coding: utf-8 -*-
 (import [uuid [UUID uuid4]])
 (import re)
-(import [datetime [timedelta]])
-(import [time [ctime]])
+(import [datetime [datetime]])
+(import [time [ctime time]])
+(import [.date-calc [*]])
 
 (defclass CronJob []
   "An object holding a job for the CronTab with an uuid for reference"
 
-  [iso8601-interval (re.compile (+ "^P(?P<y>\d+Y)?(?P<mn>\d+M)?(?P<w>\d+W)?(?P<d>\d+D)?"
-                                   "(T(?P<h>\d+H)?(?P<m>\d+M)?(?P<s>\d+S)?)?$"))
-   days-in {"year" 365 "month" 30 "week" 7}] ;; Middle ground, temp
-
-  (defn --init-- [self time function args context
+  (defn --init-- [self time-desc function args context
                   &optional [start None] [stop None] [disp-name None] [plugin None]]
     (setv
-      self.id (uuid4)
-      self.time time
-      self.recurring (if (self.interval? time) True False)
-      self.function function
-      self.args args
-      self.disp-name disp-name
-      self.plugin plugin
-      self.context context))
+      ;; Core required variables
+      self.id        (uuid4)   ; id for the job
+      self.time-desc time-desc ; the time description given
+      self.context   context   ; context object given by the protocl
+      self.function  function  ; function to be run by the cron
+      self.args      args      ; arguments to the function
 
-  (defn interval? [self interval]
-    (and (instance? str interval) (.match self.iso8601-interval interval)))
+      ;; Optional modifiers
+      self.start     (if start (datetime.fromisoformat start)) ; start time of the job
+      self.stop      (if stop  (datetime.fromisoformat stop))  ; stop time of the job
+      self.disp-name disp-name                                 ; pretty format for cron-list
+      self.plugin    plugin                                    ; plugin it belongs to
 
-  (defn interval-to-sec [self]
-    (setv interval (.groupdict (.match iso8601-interval self.time)))
-    (.total_seconds
-      (timedelta :days (+ 1))))
+      ;; Derived modifiers
+      self.recurring (if (interval? self.time-desc) ; decide whether the job is
+                         True                       ; recurring or
+                         False)                     ; not
+      self.next-run None)                             ; the next time this job runs
+    (.calc-next-run self))
 
-  (defn --str-- [self] (or self.disp-name (ctime self.time)))
+  (defn calc-next-run [self]
+    (setv self.next-run
+          (cond [(or (instance? float self.time-desc) (instance? int self.time-desc))
+                 self.time-desc]
+                [(interval? self.time-desc)
+                 (cond [(and (not self.next-run) self.start) (.timestamp self.start)]
+                       [(not self.next-run) (time)]
+                       [self.next-run (.timestamp
+                                        (+ (datetime.fromtimestamp self.next-run)
+                                           (interval-to-timedelta
+                                             (parse-interval self.time-desc))))])])))
+
+  (defn --str-- [self] (or self.disp-name (ctime self.time-desc)))
 
   (defn --repr-- [self]
-    (+ f"<job:{(repr self.id)} time: {(ctime self.time)}, "
-       f"function: {self.function}, context: {(repr self.context)}>")))
+    (+ f"<job:{(repr self.id)} "
+       (if self.disp-name f"disp-name: {self.disp-name}, " "")
+       (if self.plugin f"plugin: {self.plugin}, " "")
+       f"time-desc: {self.time-desc}, "
+       (if self.start f"start: {self.start}, " "")
+       (if self.stop  f"stop: {self.stop}, " "")
+       f"next-run: {(and self.next-run (datetime.fromtimestamp self.next-run))}, "
+       f"function: {self.function}>")))
