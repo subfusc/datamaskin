@@ -44,3 +44,14 @@
   (assert (= (len cl) 20))
   (.del cl last-random)
   (assert (= (len cl) 19)))
+
+(defn test-at []
+  (setv cl (CronList))
+  (.add cl (CronJob (+ (time) 10) (fn [x] x) [1] {}))
+  (.add cl (CronJob (+ (time) 20) (fn [x] x) [1] {}))
+  (.add cl (CronJob (+ (time) 30) (fn [x] x) [1] {}))
+  (.add cl (CronJob (+ (time) 40) (fn [x] x) [1] {}))
+  (.add cl (CronJob (+ (time) 50) (fn [x] x) [1] {}))
+  (.add cl (CronJob (+ (time) 60) (fn [x] x) [1] {}))
+  (setv at-3 (.add cl (CronJob (+ (time) 35) (fn [x] x) [1] {})))
+  (assert (= (. (.at cl 3) id) at-3)))
