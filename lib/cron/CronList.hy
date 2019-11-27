@@ -38,7 +38,7 @@
 
   (defn del [self uuid]
     (with-lock self.--lock
-      (if (= uuid self.--run-locked.uuid)
+      (if (and self.--run-locked (= uuid self.--run-locked.id))
           (setv self.--del-runlocked True)
           (do (setv i -1)
               (for [[index stored-job] (enumerate self.--tab)]
