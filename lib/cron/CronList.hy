@@ -30,8 +30,7 @@
           (if (!= insert-at None) (.insert self.--tab insert-at job)))))
 
   (defn add [self job]
-    (print (repr job))
-    (with-lock self.--lock (self.--add job)))
+    (with-lock self.--lock (do (self.--add job) job.id)))
 
   (defn clear [self]
     (with-lock self.--lock

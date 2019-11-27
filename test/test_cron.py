@@ -5,4 +5,5 @@ import os
 
 sys.path.append(os.getcwd())
 
-from cron.test_cron_job import *
+from cron.test_cron_job  import *
+from cron.test_cron_list import *

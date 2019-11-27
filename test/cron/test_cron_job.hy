@@ -53,3 +53,13 @@
   (assert (= (int job.next-run) start))
   (.calc-next-run job)
   (assert (= (int job.next-run) (+ start 86402))))
+
+(defn test-end-date []
+  (setv
+    stop (+ (int (time)) (* 8 60 60))
+    job (CronJob "PT2H"
+                 (fn [x] (+ x x)) [5] {}
+                 :stop (.isoformat (.fromtimestamp datetime stop))))
+  (assert (in (int (.timestamp job.stop)) (range stop (+ stop 2))))
+  (.calc-next-run job)
+  (assert (in (int (.timestamp job.stop)) (range stop (+ stop 2)))))
