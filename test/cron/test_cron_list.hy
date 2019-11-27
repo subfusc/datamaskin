@@ -3,6 +3,7 @@
 (import [uuid [UUID]])
 (import [time [time]])
 (import [pytest [raises]])
+(import [random [randrange]])
 
 (defn test-add []
   (setv cl (CronList)
@@ -24,3 +25,22 @@
   (assert (= (len cl) 0))
   (with [error (raises IndexError)] (.peek cl))
   (assert (in "list index out of range" (repr error))))
+
+(defn test-len []
+  (setv cl (CronList))
+  (for [x (range 0 20)]
+    (.add cl (CronJob (+ (time) (randrange 10 100)) (fn [x] x) [(randrange 1 50)] {})))
+  (assert (= 20 (len cl)))
+  (for [x (range 0 17)]
+    (.add cl (CronJob (+ (time) (randrange 10 100)) (fn [x] x) [(randrange 1 50)] {})))
+  (assert (= 37 (len cl))))
+
+(defn test-del []
+  (setv cl (CronList)
+        last-random None)
+  (for [x (range 0 20)]
+    (setv last-random
+          (.add cl (CronJob (+ (time) (randrange 10 100)) (fn [x] x) [(randrange 1 50)] {}))))
+  (assert (= (len cl) 20))
+  (.del cl last-random)
+  (assert (= (len cl) 19)))
