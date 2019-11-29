@@ -83,3 +83,11 @@
   (assert (= (len cl) 2))
   (assert (= job (.pop cl)))
   (assert (= (len cl) 1)))
+
+(defn test-borrow []
+  (setv cl (CronList)
+        job (CronJob (+ (time) 100) (fn [x] x) [1] {}))
+  (.add cl job)
+  (assert (= None cl.-CronList--run-locked))
+  (assert (= job (.borrow cl)))
+  (assert (= job cl.-CronList--run-locked)))
