@@ -55,3 +55,31 @@
   (.add cl (CronJob (+ (time) 60) (fn [x] x) [1] {}))
   (setv at-3 (.add cl (CronJob (+ (time) 35) (fn [x] x) [1] {})))
   (assert (= (. (.at cl 3) id) at-3)))
+
+(defn test-clear []
+  (setv cl (CronList))
+  (for [x (range 0 (randrange 5 20))] (.add cl (CronJob (+ (time) x) (fn [y] y) [x] {})))
+  (assert (> (len cl) 0))
+  (.clear cl)
+  (assert (= (len cl) 0)))
+
+(defn test-str []
+  (setv cl (CronList))
+  (.add cl (CronJob (+ (time) 10) (fn [x] x) [1] {} :disp-name "Foobar"))
+  (.add cl (CronJob (+ (time) 5) (fn [x] x) [1] {} :disp-name "Barfoo"))
+  (assert (= (str cl) "0: Foobar, 1: Barfoo")))
+
+(defn test-peek []
+  (setv cl (CronList)
+        job (CronJob (+ (time) 10) (fn [x] x) [1] {} :disp-name "Foobar"))
+  (.add cl job)
+  (assert (= (.peek cl) job)))
+
+(defn test-pop []
+  (setv cl (CronList)
+        job (CronJob (+ (time) 5) (fn [x] x) [1] {} :disp-name "Barfoo"))
+  (.add cl (CronJob (+ (time) 10) (fn [x] x) [1] {} :disp-name "Foobar"))
+  (.add cl job)
+  (assert (= (len cl) 2))
+  (assert (= job (.pop cl)))
+  (assert (= (len cl) 1)))
