@@ -39,3 +39,11 @@
                            [secs] {})))
   (sleep 31)
   (.stop tab))
+
+(defn test-exception-in-tab []
+  (setv tab (CronTab (fn [o c] (assert False))))
+  (.start tab)
+  (.add-job tab (CronJob (time) (fn [] (raise "Error in here")) [] {}))
+  (sleep 5)
+  (assert (= 0 (len tab)))
+  (.stop tab))
