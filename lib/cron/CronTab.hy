@@ -86,7 +86,7 @@
                         (next-job.function #* next-job.args)
                         next-job.context)
                       (except [e Exception]
-                        (.del self.--job-list next-job.uuid)
+                        (.del self.--job-list next-job.id)
                         (traceback.print-exc)
                         (print (.format "Error in the Crontab: {}" (repr e)) :file sys.stderr))
                       (finally (.continue self.--job-list)))
