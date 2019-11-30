@@ -3,7 +3,7 @@
 (import [uuid [UUID]])
 (import [time [time]])
 (import [pytest [raises]])
-(import [random [randrange]])
+(import [random [randrange random]])
 
 (defn test-add []
   (setv cl (CronList)
@@ -91,3 +91,45 @@
   (assert (= None cl.-CronList--run-locked))
   (assert (= job (.borrow cl)))
   (assert (= job cl.-CronList--run-locked)))
+
+(defn test-unborrow []
+  (setv cl (CronList)
+        job (CronJob (+ (time) 100) (fn [x] x) [1] {}))
+  (.add cl job)
+  (.borrow cl)
+  (assert (= job cl.-CronList--run-locked))
+  (.unborrow cl)
+  (assert (= None cl.-CronList--run-locked))
+  (assert (= 1 (len cl))))
+
+(defn test-continue []
+  (setv cl (CronList)
+        job (CronJob (+ (time) 100) (fn [x] x) [1] {}))
+  (.add cl job)
+  (.borrow cl)
+  (assert (= job cl.-CronList--run-locked))
+  (.continue cl)
+  (assert (= None cl.-CronList--run-locked))
+  (assert (= 0 (len cl))))
+
+(defn test-running-timestamps-only []
+  (setv cl (CronList))
+  (for [x (range 0 40)]
+    (.add cl (CronJob (+ (time) (randrange 10 120)) (fn [x] x) [1] {})))
+  (setv job None
+        timestamp 0
+        continues 0)
+  (for [x (range 0 20)]
+    (setv job (.borrow cl))
+    (assert (>= job.next-run timestamp))
+    (assert (= job cl.-CronList--run-locked))
+    (setv timestamp job.next-run)
+    (if (> 0.5 (random))
+        (do ;; continue
+          (.continue cl)
+          (assert (= None cl.-CronList--run-locked))
+          (setv continues (inc continues)))
+        (do ;; unborrow
+          (.unborrow cl)
+          (assert (= None cl.-CronList--run-locked)))))
+  (assert (= (len cl) (- 40 continues))))
