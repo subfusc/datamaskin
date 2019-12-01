@@ -17,6 +17,11 @@
   (assert (= 2 (len cl)))
   (assert (= sec (. (.peek cl) id))))
 
+(defn test-add-invalid []
+  (setv cl (CronList))
+  (.add cl (CronJob "Invalid timestamp" (fn [x] x) [1] {}))
+  (assert (= 0 (len cl))))
+
 (defn test-clear []
   (setv cl (CronList)
         first (.add cl (CronJob (+ 20 (time)) (fn [x] x) [5] {})))

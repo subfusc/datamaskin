@@ -21,7 +21,7 @@
     (len self.--tab))
 
   (defn --add [self job]
-    (if (and job (instance? CronJob job))
+    (if (and job (instance? CronJob job) job.next-run)
         (do
           (setv insert-at None)
           (for [[index stored-job] (enumerate self.--tab)]
