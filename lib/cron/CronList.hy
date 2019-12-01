@@ -84,9 +84,11 @@
       (do (unless self.--run-locked
             (raise (+ "CronList got an unborrow even if there is no object here: "
                       f"{(repr self.--run-locked)}")))
-          (if (and self.--run-locked.recurring (not self.--del-runlocked))
+          (if (and self.--run-locked.recurring
+                   (not self.--del-runlocked))
               (do (.calc-next-run self.--run-locked)
-                  (self.--add self.--run-locked)))
+                  (if (< self.--run-locked.next-run (.timestamp self.--run-locked.stop))
+                      (self.--add self.--run-locked))))
           (setv self.--del-runlocked False)
           (setv self.--run-locked None))))
 

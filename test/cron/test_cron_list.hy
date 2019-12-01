@@ -2,6 +2,7 @@
 (import [lib.cron [CronList CronJob]])
 (import [uuid [UUID]])
 (import [time [time]])
+(import [datetime [datetime]])
 (import [pytest [raises]])
 (import [random [randrange random]])
 
@@ -110,6 +111,24 @@
   (assert (= job cl.-CronList--run-locked))
   (.continue cl)
   (assert (= None cl.-CronList--run-locked))
+  (assert (= 0 (len cl))))
+
+(defn test-stopping-when-job-has-stop []
+  (setv cl (CronList)
+        job (CronJob "PT10S"
+                     (fn [x] x) [1] {}
+                     :stop (.isoformat (datetime.fromtimestamp (+ (time) 21)))))
+  (.add cl job)
+  (assert (= 1 (len cl)))
+  (assert (= job (.borrow cl)))
+  (.continue cl)
+  (assert (= 1 (len cl)))
+  (assert (= job (.borrow cl)))
+  (.continue cl)
+  (assert (= 1 (len cl)))
+  (assert (= job (.borrow cl)))
+  (.continue cl)
+  (print (repr job))
   (assert (= 0 (len cl))))
 
 (defn test-running-timestamps-only []
