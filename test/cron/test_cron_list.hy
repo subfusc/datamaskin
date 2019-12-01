@@ -118,6 +118,25 @@
   (assert (= None cl.-CronList--run-locked))
   (assert (= 0 (len cl))))
 
+(defn test-continue-recurring-no-stop []
+  (setv cl (CronList)
+        job (CronJob "PT10S" (fn [x] x) [1] {}))
+  (.add cl job)
+  (.borrow cl)
+  (assert (= job cl.-CronList--run-locked))
+  (.continue cl)
+  (assert (= None cl.-CronList--run-locked))
+  (assert (= 1 (len cl)))
+  (.borrow cl)
+  (.continue cl)
+  (assert (= 1 (len cl))))
+
+(defn test-borrow-unborrow-allowed-on-empty []
+  (setv cl (CronList))
+  (assert (= None (.borrow cl)))
+  (assert (= None (.unborrow cl)))
+  (assert (= None (.continue cl))))
+
 (defn test-stopping-when-job-has-stop []
   (setv cl (CronList)
         job (CronJob "PT10S"

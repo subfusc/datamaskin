@@ -63,8 +63,8 @@
   (defn borrow [self]
     (with-lock self.--lock
       (do (if self.--run-locked
-              (raise (+ "CronList got a borrow even if there is an object here: "
-                        f"{(repr self.--run-locked)}")))
+              (raise (Exception (+ "CronList got a borrow even if there is an object here: "
+                                   f"{(repr self.--run-locked)}"))))
           (if (> (len self.--tab) 0)
               (do (setv self.--run-locked (.pop self.--tab))
                   self.--run-locked)))))
@@ -72,25 +72,23 @@
   (defn unborrow [self]
     (with-lock self.--lock
       (do
-        (unless self.--run-locked
-          (raise (+ "CronList got an unborrow even if there is no object here: "
-                    f"{(repr self.--run-locked)}")))
-        (unless self.--del-runlocked (self.--add self.--run-locked))
+        (unless (or (not self.--run-locked) self.--del-runlocked)
+          (self.--add self.--run-locked))
         (setv self.--del-runlocked False)
         (setv self.--run-locked None))))
 
   (defn continue [self]
     (with-lock self.--lock
-      (do (unless self.--run-locked
-            (raise (+ "CronList got an unborrow even if there is no object here: "
-                      f"{(repr self.--run-locked)}")))
-          (if (and self.--run-locked.recurring
-                   (not self.--del-runlocked))
-              (do (.calc-next-run self.--run-locked)
-                  (if (< self.--run-locked.next-run (.timestamp self.--run-locked.stop))
-                      (self.--add self.--run-locked))))
-          (setv self.--del-runlocked False)
-          (setv self.--run-locked None))))
+      (if self.--run-locked
+          (do
+            (if (and self.--run-locked.recurring
+                     (not self.--del-runlocked))
+                (do (.calc-next-run self.--run-locked)
+                    (if (or (not self.--run-locked.stop)
+                            (< self.--run-locked.next-run (.timestamp self.--run-locked.stop)))
+                        (self.--add self.--run-locked))))
+            (setv self.--del-runlocked False)
+            (setv self.--run-locked None)))))
 
   (defn pop [self]
     (with-lock self.--lock
