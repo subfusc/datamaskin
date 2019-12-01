@@ -5,4 +5,5 @@ import os
 
 sys.path.append(os.getcwd())
 
-from test_plugs.test_useless import *
+from test_plugs.test_useless    import *
+from test_plugs.test_page_title import *
