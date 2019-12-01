@@ -133,7 +133,6 @@
   (assert (= 1 (len cl)))
   (assert (= job (.borrow cl)))
   (.continue cl)
-  (print (repr job))
   (assert (= 0 (len cl))))
 
 (defn test-running-timestamps-only []
