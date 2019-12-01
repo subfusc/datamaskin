@@ -64,8 +64,3 @@ class Plugin(object):
                 if match.group('size') == '20' and answ == 20:
                     answ = 'CRITICAL HIT!'
             return [(0, channel, kwargs['from_nick'], str(answ))]
-
-if __name__ == '__main__':
-    print('done')
-    p = Plugin()
-    print(p.cmd('2d6', None, '#iskbot', from_nick="foobar"))
