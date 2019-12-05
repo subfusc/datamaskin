@@ -26,19 +26,21 @@
     (setv self.find-uri (re.compile "https?://\S+")))
 
   (defn convert-query [self query]
-    (parse.quote query))
+    (if (< 0 (len query))
+        (.join "&"
+               (list (map (fn [p] (.join "=" p))
+                          (map (fn [p] [(parse.quote (first p)) (parse.quote (second p))])
+                               (map (fn [x] (.split x "=")) (.split query "&"))))))))
 
-  (defn convert-path [self path]
-    (parse.quote path))
+  (defn convert-path [self path] (parse.quote path))
 
   (defn parse-url [self url]
     (setv u (parse.urlsplit url))
-    (parse.urlunparse [(get u 0) ; scheme
+    (parse.urlunsplit [(get u 0) ; scheme
                        (get u 1) ; netloc
                        (self.convert-path (get u 2)) ; path
                        (self.convert-query (get u 3)) ; query
-                       (get u 4) ; fragments
-                       ""]))
+                       (get u 4)])) ; fragments
 
   (defn get-page-title [self url-match]
     (try

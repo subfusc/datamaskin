@@ -31,3 +31,10 @@
   (setv pt (Plugin)
         response (.listen pt "https://no.wikipedia.org/wiki/Bokmål" "#channel"))
   (assert (= (get (first response) 2) "Bokmål – Wikipedia")))
+
+(defn test-pagetitle-w-params []
+  (setv pt (Plugin)
+        response (.listen pt
+                          "https://github.com/python/cpython/search?q=foobar&unscoped_q=foobar"
+                          "#channel"))
+  (assert (= (get (first response) 2) "Search · foobar · GitHub")))
