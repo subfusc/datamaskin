@@ -1,0 +1,7 @@
+blocklist:
+  - .xxx
+  - .jpg
+  - .jpeg
+  - .png
+  - .love
+  - .ru
