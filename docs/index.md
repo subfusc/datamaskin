@@ -9,6 +9,7 @@ is running.
 
 - [KosKarma](/datamaskin/kos-karma) Check the temperature of the channel towards stuff.
 - [Nagger](/datamaskin/nagger) Nag people into answering.
+- [PageTitle](/datamaskin/page-title) Get titles from urls.
 - [Reddit](/datamaskin/reddit) Interacting with reddit.
 - [Reminder](/datamaskin/reminder) Remind someone of something after some time.
 - [RexReplace](/datamaskin/rex-replace) correct your self... Or others.
