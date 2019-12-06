@@ -65,4 +65,4 @@
     (if match
         (do
           (setv title (.get-page-title self (.group match 0)))
-          (if title [[0 channel title]])))))
+          (if title [[0 channel (.strip title)]])))))
