@@ -24,7 +24,8 @@ for the current protocols are:
 
 - `force-unload <plugin>` Unload a plugin from the system without attempting to run (stop)
 - `load [plugin]` Load a plugin. If no arg is given, it shows unloaded plugins available.
-- `reload <plugin>` Reload a plugin including refreshing the code
+- `reload [plugin]` Reload a plugin including refreshing the code. Without args it lists
+  out the loaded plugins. (like `unload`)
 - `unload [plugin]` Unload a plugin including removing the code from the system. If
   no plugin is given, list loaded plugins.
 

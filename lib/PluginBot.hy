@@ -86,7 +86,7 @@
                     (.outbound-message self
                                        :message f"{command} «{args}»: [ OK ]"
                                        :context context)))
-              (cond [(= command "unload")
+              (cond [(or (= command "reload") (= command "unload"))
                      (.outbound-message
                        self
                        :message (.format "Loaded: {}"
