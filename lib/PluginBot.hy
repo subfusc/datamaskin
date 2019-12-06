@@ -1,6 +1,7 @@
 (import [.ProtocolBot [ProtocolBot]])
 (import [yaml [load FullLoader]])
 (import [os.path [isfile]])
+(import [os [listdir]])
 (import sys)
 (import traceback)
 
@@ -54,6 +55,9 @@
                 [(= (len message) 3)
                  (.outbound-message self (get message 2) context)]))))
 
+  (defn -unloaded-plugins [self]
+    (.join ", " (sorted (- (set (listdir "plugins")) (set (.keys self.--functions))))))
+
   (defmacro run-plugin-with-error-handling [code]
     `(if context
          (do
@@ -70,21 +74,29 @@
   (defn cmd [self command args &optional [context '()] &kwargs kwargs]
     (if (and (in "admin" kwargs) (get kwargs "admin"))
         (try
-          (cond [(= command "load") (self.--load-plugin args)]
-                [(= command "force-unload") (self.--unload-wo-stop args)]
-                [(= command "unload") (self.--unload-plugin args)]
-                [(= command "reload") (do
-                                        (self.--unload-plugin args)
-                                        (self.--load-plugin args))]
-                [(= command "loaded") (.outbound-message
-                                        self
-                                        :message (.format "Loaded: {}"
-                                                          (.join ", " (.keys self.--functions)))
-                                        :context context)])
-          (if (in command ["load" "unload" "reload" "forceunload"])
-              (.outbound-message self
-                                 :message f"{command} «{args}»: [ OK ]"
-                                 :context context))
+          (if (> (len args) 0)
+              (do
+                (cond [(= command "load") (self.--load-plugin args)]
+                      [(= command "force-unload") (self.--unload-wo-stop args)]
+                      [(= command "unload") (self.--unload-plugin args)]
+                      [(= command "reload") (do
+                                              (self.--unload-plugin args)
+                                              (self.--load-plugin args))])
+                (if (in command ["load" "unload" "reload" "forceunload"])
+                    (.outbound-message self
+                                       :message f"{command} «{args}»: [ OK ]"
+                                       :context context)))
+              (cond [(= command "unload")
+                     (.outbound-message
+                       self
+                       :message (.format "Loaded: {}"
+                                         (.join ", " (sorted (.keys self.--functions))))
+                       :context context)]
+                    [(= command "load") (.outbound-message
+                                          self
+                                          :message (.format "Unloaded: {}"
+                                                            (.-unloaded-plugins self))
+                                          :context context)]))
           (except [e Exception]
             (.outbound-message self
                                :message f"{command} «{args}»: [ FAILED ] "

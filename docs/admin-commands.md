@@ -23,10 +23,10 @@ for the current protocols are:
 ## Plugins
 
 - `force-unload <plugin>` Unload a plugin from the system without attempting to run (stop)
-- `load <plugin>` Load a plugin
-- `loaded` List plugins loaded in the system
+- `load [plugin]` Load a plugin. If no arg is given, it shows unloaded plugins available.
 - `reload <plugin>` Reload a plugin including refreshing the code
-- `unload <plugin>` Unload a plugin including removing the code from the system
+- `unload [plugin]` Unload a plugin including removing the code from the system. If
+  no plugin is given, list loaded plugins.
 
 ## Protocol
 
