@@ -24,16 +24,22 @@
 
   (defn --init-- [self &kwargs kws]
     (setv self.find-uri (re.compile "https?://\S+")
+          self.encoded (re.compile "%[A-Z0-9]{2}")
           self.blocklist (get kws "config" "blocklist")))
 
   (defn convert-query [self query]
-    (if (< 0 (len query))
-        (.join "&"
-               (list (map (fn [p] (.join "=" p))
-                          (map (fn [p] [(parse.quote (first p)) (parse.quote (second p))])
-                               (map (fn [x] (.split x "=")) (.split query "&"))))))))
+    (if (.search self.encoded query)
+        query
+        (if (< 0 (len query))
+            (.join "&"
+                   (list (map (fn [p] (.join "=" p))
+                              (map (fn [p] [(parse.quote (first p)) (parse.quote (second p))])
+                                   (map (fn [x] (.split x "=")) (.split query "&")))))))))
 
-  (defn convert-path [self path] (parse.quote path))
+  (defn convert-path [self path]
+    (if (.search self.encoded path)
+        path
+        (parse.quote path)))
 
   (defn is-blocked [self part]
     (any (map (fn [x] (.endswith part x)) self.blocklist)))

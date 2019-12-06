@@ -27,7 +27,7 @@
         response (.listen pt "https://no.wikipedia.org/wiki/Bokm%C3%A5l" "#channel"))
   (assert (= (get (first response) 2) "Bokmål – Wikipedia")))
 
-(defn test-pagetitle-unicode-preencode []
+(defn test-pagetitle-unicode-unencoded []
   (setv pt (Plugin :config {"blocklist" []})
         response (.listen pt "https://no.wikipedia.org/wiki/Bokmål" "#channel"))
   (assert (= (get (first response) 2) "Bokmål – Wikipedia")))
