@@ -6,19 +6,23 @@
 (defclass TitleParser [HTMLParser]
   (defn --init-- [self]
     (setv self.in-title False
+          self.in-head False
           self.title-content "")
     (.--init-- (super)))
 
   (defn title [self] (if (= self.title-content "") None self.title-content))
 
   (defn handle-starttag [self tag attrs]
-    (if (= tag "title") (setv self.in-title True)))
+    (cond [(and self.in-head (= tag "title")) (setv self.in-title True)]
+          [(= tag "head") (setv self.in-head True)]))
 
   (defn handle-endtag [self tag]
-    (if (= tag "title") (setv self.in-title False)))
+    (cond [(and self.in-head (= tag "title")) (setv self.in-title False)]
+          [(= tag "head") (setv self.in-head False self.in-title False)]))
 
   (defn handle-data [self data]
-    (if self.in-title (setv self.title-content (+ self.title-content data)))))
+    (if (and self.in-head self.in-title)
+        (setv self.title-content (+ self.title-content data)))))
 
 (defclass Plugin []
 
