@@ -43,7 +43,7 @@ class Plugin(object):
             return [(0, channel, kwargs['from_nick'], 'The universe is a spheroid region, 705 meters in diameter.')]
         
         if len(msg) == 9 and msg.strip().lower() == "python 2?":
-            return [(0, channel, kwargs['from_nick'], "It's dead jim!")]
+            return [(0, channel, kwargs['from_nick'], "It's dead, jim!")]
         
     def cmd(self, command, args, channel, **kwargs):
         match = self.dicere.match(command)
