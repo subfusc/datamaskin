@@ -41,7 +41,10 @@ class Plugin(object):
 
         if msg.find(kwargs['context'].self_nick) != -1 and self.universe.search(msg):
             return [(0, channel, kwargs['from_nick'], 'The universe is a spheroid region, 705 meters in diameter.')]
-
+        
+        if len(msg) == 9 and msg.strip().lower() == "python 2?":
+            return [(0, channel, kwargs['from_nick'], "It's dead jim!")]
+        
     def cmd(self, command, args, channel, **kwargs):
         match = self.dicere.match(command)
         if command == 'coin' or command == 'toss' or command == 'cointoss':
