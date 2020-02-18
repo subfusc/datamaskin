@@ -11,3 +11,6 @@
   And configure the correct settings for you
 - Run it with `$ hy datamaskin.hy`. To run it
   on a server, run it in a screen or tmux
+
+## Tested on
+- Hy 0.17
