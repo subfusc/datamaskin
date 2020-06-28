@@ -1,5 +1,5 @@
-(import [sleekxmpp [ClientXMPP JID]])
-(import [sleekxmpp.exceptions [IqError IqTimeout]])
+(import [slixmpp [ClientXMPP JID]])
+(import [slixmpp.exceptions [IqError IqTimeout]])
 (import [.protocols [ProtocolGlue]])
 
 (defclass ProtocolBot [ProtocolGlue]

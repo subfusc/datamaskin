@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-(import [sleekxmpp [ClientXMPP]])
+(import [slixmpp [ClientXMPP]])
 (import [.Context [Context]])
 (import sys)
 
@@ -29,10 +29,10 @@
     (.register_plugin self "xep_0199"))
 
   (defn join-room [self room]
-    (.joinMUC (get self.plugin "xep_0045") room self.nick :wait True))
+    (.join-muc (get self.plugin "xep_0045") room self.nick :wait True))
 
   (defn leave-room [self room]
-    (.leaveMUC (get self.plugin "xep_0045") room self.nick :msg "I don't wanna be here!"))
+    (.leave-muc (get self.plugin "xep_0045") room self.nick :msg "I don't wanna be here!"))
 
   (defn session-start [self event]
     (.send_presence self)
@@ -83,6 +83,6 @@
     (self.add_event_handler "groupchat_message" self.group-message)
     (self.add_event_handler "message" self.message)
     (.connect self)
-    (.process self :block True))
+    (.process self :forever True))
 
   (defn protocol-stop [self]))
