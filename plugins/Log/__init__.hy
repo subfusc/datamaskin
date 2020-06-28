@@ -5,8 +5,8 @@
 (defclass Plugin []
   "The Log plugin should log everything running through this"
 
-  [cmd-format "{date} {channel} {from_name} {cmdchar}{cmd} {args}\n"
-   listen-format "{date} {channel} {from_name} {message}\n"]
+  (setv cmd-format "{date} {channel} {from_name} {cmdchar}{cmd} {args}\n"
+        listen-format "{date} {channel} {from_name} {message}\n")
 
   (defn --init-- [self &kwargs kws]
     (setv
